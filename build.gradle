@@ -5,17 +5,21 @@ plugins {
 }
 
 group = 'ru.w'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.2-SNAPSHOT'
 description = 'Automation of the business process of configuration update requests handling'
 sourceCompatibility = '11'
 
 repositories {
     mavenCentral()
+    maven { url 'https://packages.atlassian.com/maven-external/' }
 }
 
 dependencies {
     implementation platform('org.springframework.boot:spring-boot-dependencies:2.3.1.RELEASE')
     implementation platform('org.camunda.bpm:camunda-bom:7.14.0')
+
+    implementation 'com.atlassian.jira:jira-rest-java-client-core:5.2.2'
+    implementation 'io.atlassian.fugue:fugue:4.7.2'
 
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -27,8 +31,22 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+}
+
+bootRun {
+    if (project.hasProperty('args')) {
+        args project.args.split(',')
+    }
 }
 
 test {
+    if (project.hasProperty('args')) {
+        project.args.split(',').each {
+            def (key, value) = it.replaceFirst('--', "").split('=')
+            systemProperty((String) key, (String) value)
+        }
+    }
     useJUnitPlatform()
 }
