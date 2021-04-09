@@ -8,10 +8,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -26,7 +23,8 @@ public class ConfigurationUpdateRequest {
     private final String issueKey;
     private final String schemeName;
     private final String tableName;
-    private final Map<String, String> columns;
+    //private final Map<String, String> columns;
+    private final Set<Column> columns; //TODO
     private final int frequency;
     private final boolean createSnapshots;
 
@@ -38,7 +36,7 @@ public class ConfigurationUpdateRequest {
         return tableName;
     }
 
-    public Map<String, String> getColumns() {
+    public Set<Column> getColumns() {
         return columns;
     }
 
@@ -50,7 +48,11 @@ public class ConfigurationUpdateRequest {
         return createSnapshots;
     }
 
-    public ConfigurationUpdateRequest(String issueKey, String schemeName, String tableName, Map<String, String> columns, int frequency, boolean createSnapshots) {
+    public boolean areColumnsSpecified() {
+        return Objects.nonNull(columns);
+    }
+
+    public ConfigurationUpdateRequest(String issueKey, String schemeName, String tableName, Set<Column> columns, int frequency, boolean createSnapshots) {
         this.issueKey = issueKey;
         this.schemeName = schemeName;
         this.tableName = tableName;
@@ -93,19 +95,19 @@ public class ConfigurationUpdateRequest {
             LOGGER.error("Something wrong with \"Extraction type\" field. Check your Jira Custom Fields settings", e);
         }
 
-        Map<String, String> columns = null;
+        Set<Column> columns = null;
         String columnsFieldStr = (String) fields.get(COLUMNS);
         if (Objects.nonNull(columnsFieldStr)) {
             String[] columnsItems = columnsFieldStr.split("[,;\\s]\\s*");
             columns = Arrays.stream(columnsItems)
                     .map(
-                            item -> item.split(":")
+                            item -> {
+                                String[] kv = item.split(":");
+                                return new Column(kv[0], kv[1]);
+                            }
                     )
                     .collect(
-                            Collectors.toMap(
-                                    s -> s[0],
-                                    s -> s[1]
-                            )
+                            Collectors.toSet()
                     );
         }
 
