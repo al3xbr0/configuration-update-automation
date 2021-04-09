@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_0unavwe" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.6.0">
+  <bpmn:process id="DocsUpdateProcess" name="Обновление документации в Confluence" isExecutable="true" camunda:isStartableInTasklist="false">
+    <bpmn:startEvent id="StartEvent_DocsUpdateNeeded" name="Требуется обновить документацию&#10;в Confluence">
+      <bpmn:outgoing>Flow_1i6ad5q</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="Gateway_PageExists" name="Страница уже существует?">
+      <bpmn:incoming>Flow_1ff4yxo</bpmn:incoming>
+      <bpmn:outgoing>Flow_PageExistsYes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_PageExistsNo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_PageExistsYes" name="Да" sourceRef="Gateway_PageExists" targetRef="Gateway_0akr066">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${pageExists == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_PageExistsNo" name="Нет" sourceRef="Gateway_PageExists" targetRef="Activity_CreateNewPage">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${pageExists == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="Gateway_0akr066">
+      <bpmn:incoming>Flow_1bxk3uf</bpmn:incoming>
+      <bpmn:incoming>Flow_PageExistsYes</bpmn:incoming>
+      <bpmn:outgoing>Flow_039rem9</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Activity_SendPageContent" name="Поместить содержимое на страницу">
+      <bpmn:incoming>Flow_039rem9</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ipzs25</bpmn:outgoing>
+      <bpmn:property id="Property_07lp2us" name="__targetRef_placeholder" />
+      <bpmn:dataInputAssociation id="DataInputAssociation_1eq03vw">
+        <bpmn:sourceRef>DataObjectReference_PageContent</bpmn:sourceRef>
+        <bpmn:targetRef>Property_07lp2us</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_039rem9" sourceRef="Gateway_0akr066" targetRef="Activity_SendPageContent" />
+    <bpmn:dataObjectReference id="DataObjectReference_PageContent" name="Содержимое страницы" dataObjectRef="DataObject_09x3jgq" />
+    <bpmn:dataObject id="DataObject_09x3jgq" />
+    <bpmn:endEvent id="EndEvent_DocsUpdated" name="Документация обновлена">
+      <bpmn:incoming>Flow_0ipzs25</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0ipzs25" sourceRef="Activity_SendPageContent" targetRef="EndEvent_DocsUpdated" />
+    <bpmn:task id="Activity_CreateNewPage" name="Создать новую страницу в Confluence">
+      <bpmn:incoming>Flow_PageExistsNo</bpmn:incoming>
+      <bpmn:outgoing>Flow_1bxk3uf</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_1bxk3uf" sourceRef="Activity_CreateNewPage" targetRef="Gateway_0akr066" />
+    <bpmn:task id="Activity_BuildTable" name="Составить таблицу">
+      <bpmn:incoming>Flow_1i6ad5q</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ff4yxo</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_167551m">
+        <bpmn:targetRef>DataObjectReference_PageContent</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_1i6ad5q" sourceRef="StartEvent_DocsUpdateNeeded" targetRef="Activity_BuildTable" />
+    <bpmn:sequenceFlow id="Flow_1ff4yxo" sourceRef="Activity_BuildTable" targetRef="Gateway_PageExists" />
+    <bpmn:textAnnotation id="TextAnnotation_Table">
+      <bpmn:text>Перечисление полей с типами</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_0tceith" sourceRef="Activity_BuildTable" targetRef="TextAnnotation_Table" />
+    <bpmn:textAnnotation id="TextAnnotation_CreatePage">
+      <bpmn:text>С названием вида "Имя_схемы.Имя_таблицы"</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_0ms3gqu" sourceRef="Activity_CreateNewPage" targetRef="TextAnnotation_CreatePage" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="DocsUpdateProcess">
+      <bpmndi:BPMNShape id="TextAnnotation_1cw585s_di" bpmnElement="TextAnnotation_Table">
+        <dc:Bounds x="320" y="320" width="130" height="40" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_16sdanm_di" bpmnElement="TextAnnotation_CreatePage">
+        <dc:Bounds x="610" y="410" width="169" height="41" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1ff4yxo_di" bpmnElement="Flow_1ff4yxo">
+        <di:waypoint x="359" y="237" />
+        <di:waypoint x="438" y="237" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1i6ad5q_di" bpmnElement="Flow_1i6ad5q">
+        <di:waypoint x="230" y="237" />
+        <di:waypoint x="259" y="237" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1bxk3uf_di" bpmnElement="Flow_1bxk3uf">
+        <di:waypoint x="610" y="340" />
+        <di:waypoint x="638" y="340" />
+        <di:waypoint x="638" y="262" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ipzs25_di" bpmnElement="Flow_0ipzs25">
+        <di:waypoint x="796" y="237" />
+        <di:waypoint x="830" y="237" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_039rem9_di" bpmnElement="Flow_039rem9">
+        <di:waypoint x="663" y="237" />
+        <di:waypoint x="696" y="237" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04uvvn9_di" bpmnElement="Flow_PageExistsNo">
+        <di:waypoint x="463" y="262" />
+        <di:waypoint x="463" y="340" />
+        <di:waypoint x="510" y="340" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="468" y="283" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0a8rmte_di" bpmnElement="Flow_PageExistsYes">
+        <di:waypoint x="488" y="237" />
+        <di:waypoint x="613" y="237" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="504" y="213" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_DocsUpdateNeeded">
+        <dc:Bounds x="194" y="219" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="175" y="262" width="75" height="53" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0tt9v1m_di" bpmnElement="Activity_BuildTable">
+        <dc:Bounds x="259" y="197" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataObjectReference_18ckzbp_di" bpmnElement="DataObjectReference_PageContent">
+        <dc:Bounds x="367" y="75" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="352" y="132" width="66" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1533b6p_di" bpmnElement="Gateway_PageExists" isMarkerVisible="true">
+        <dc:Bounds x="438" y="212" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="428" y="181" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1y9lpos_di" bpmnElement="Activity_CreateNewPage">
+        <dc:Bounds x="510" y="300" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_177qrcx_di" bpmnElement="EndEvent_DocsUpdated">
+        <dc:Bounds x="830" y="219" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="812" y="262" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0akr066_di" bpmnElement="Gateway_0akr066" isMarkerVisible="true">
+        <dc:Bounds x="613" y="212" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0hqjh0b_di" bpmnElement="Activity_SendPageContent">
+        <dc:Bounds x="696" y="197" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_0tceith_di" bpmnElement="Association_0tceith">
+        <di:waypoint x="290" y="280" />
+        <di:waypoint x="320" y="329" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_0ms3gqu_di" bpmnElement="Association_0ms3gqu">
+        <di:waypoint x="589" y="380" />
+        <di:waypoint x="610" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataInputAssociation_1eq03vw_di" bpmnElement="DataInputAssociation_1eq03vw">
+        <di:waypoint x="403" y="100" />
+        <di:waypoint x="746" y="100" />
+        <di:waypoint x="746" y="197" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_167551m_di" bpmnElement="DataOutputAssociation_167551m">
+        <di:waypoint x="309" y="197" />
+        <di:waypoint x="309" y="100" />
+        <di:waypoint x="367" y="100" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
