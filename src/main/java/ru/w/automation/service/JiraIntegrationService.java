@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class JiraRestService {
+public class JiraIntegrationService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JiraRestService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JiraIntegrationService.class);
 
 //    @Autowired
 //    private JiraRestClient jiraRestClient;

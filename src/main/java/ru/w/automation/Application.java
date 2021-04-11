@@ -7,13 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 @EnableProcessApplication("Configuration Update Request Handling")
 public class Application {
-    public boolean isPassedValidation() {
-        return passedValidation;
-    }
 
-    private boolean passedValidation;
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
-
 }
