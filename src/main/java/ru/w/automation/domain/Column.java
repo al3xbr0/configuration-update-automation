@@ -18,5 +18,9 @@ public class Column {
         this.type = type;
     }
 
-    //TODO
+    @Override
+    public String toString() {
+        return "\"" + name + "\"" + ":" +
+                "\"" + type + "\"" + "\n";
+    }
 }
