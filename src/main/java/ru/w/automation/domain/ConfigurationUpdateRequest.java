@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -20,13 +22,25 @@ public class ConfigurationUpdateRequest {
 
     private static final List<ConfigurationUpdateFieldType> REQUIRED_FIELDS = List.of(SCHEME, TABLE, FREQUENCY, CREATE_SNAPSHOTS);
 
+    private static final Pattern COLUMNS_FIELD_CORRECT_PATTERN = Pattern.compile(
+            "^(?:\\w+\\s*:\\s*\\w+(?:,\\s*(?!$)|\\s*$))+$"
+    );
+    private static final Pattern COLUMNS_ITEMS_PATTERN = Pattern.compile(
+            "(?<name>\\w+)\\s*:\\s*(?<type>\\w+)"
+    );
+
     private final String issueKey;
     private final String schemeName;
     private final String tableName;
     //private final Map<String, String> columns;
-    private final Set<Column> columns; //TODO
+    private final Collection<Column> columns;
     private final int frequency;
     private final boolean createSnapshots;
+    private ValidationStatus validationStatus;
+
+    public String getIssueKey() {
+        return issueKey;
+    }
 
     public String getSchemeName() {
         return schemeName;
@@ -36,7 +50,7 @@ public class ConfigurationUpdateRequest {
         return tableName;
     }
 
-    public Set<Column> getColumns() {
+    public Iterable<Column> getColumns() {
         return columns;
     }
 
@@ -49,10 +63,10 @@ public class ConfigurationUpdateRequest {
     }
 
     public boolean areColumnsSpecified() {
-        return Objects.nonNull(columns);
+        return !columns.isEmpty();
     }
 
-    public ConfigurationUpdateRequest(String issueKey, String schemeName, String tableName, Set<Column> columns, int frequency, boolean createSnapshots) {
+    public ConfigurationUpdateRequest(String issueKey, String schemeName, String tableName, Collection<Column> columns, int frequency, boolean createSnapshots) {
         this.issueKey = issueKey;
         this.schemeName = schemeName;
         this.tableName = tableName;
@@ -95,20 +109,22 @@ public class ConfigurationUpdateRequest {
             LOGGER.error("Something wrong with \"Extraction type\" field. Check your Jira Custom Fields settings", e);
         }
 
-        Set<Column> columns = null;
+        Collection<Column> columns = new ArrayList<>();
         String columnsFieldStr = (String) fields.get(COLUMNS);
         if (Objects.nonNull(columnsFieldStr)) {
-            String[] columnsItems = columnsFieldStr.split("[,;\\s]\\s*");
-            columns = Arrays.stream(columnsItems)
-                    .map(
-                            item -> {
-                                String[] kv = item.split(":");
-                                return new Column(kv[0], kv[1]);
-                            }
-                    )
-                    .collect(
-                            Collectors.toSet()
-                    );
+            if (!COLUMNS_FIELD_CORRECT_PATTERN.matcher(columnsFieldStr).matches()) {
+                LOGGER.error("\"Set of columns\" field has incorrect format: {}", columnsFieldStr);
+                throw new IllegalArgumentException("Couldn't parse \"Set of columns\" field. Please, check it out.");
+            }
+            Matcher columnsItemsMatcher = COLUMNS_ITEMS_PATTERN.matcher(columnsFieldStr);
+            while (columnsItemsMatcher.find()) {
+                columns.add(
+                        new Column(
+                                columnsItemsMatcher.group("name"),
+                                columnsItemsMatcher.group("type")
+                        )
+                );
+            }
         }
 
         return new ConfigurationUpdateRequest(issue.getKey(), schemeName, tableName, columns, frequency, createSnapshots);
