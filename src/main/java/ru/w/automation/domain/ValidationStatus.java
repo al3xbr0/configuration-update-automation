@@ -1,19 +1,19 @@
 package ru.w.automation.domain;
 
 public class ValidationStatus {
-    private boolean schemeValid;
+    private boolean schemaValid;
     private boolean tableValid;
     private boolean columnDuplicates;
     private boolean columnsExist;
 
     private String validationComment;
 
-    public boolean isSchemeValid() {
-        return schemeValid;
+    public boolean isSchemaValid() {
+        return schemaValid;
     }
 
-    public void setSchemeValid(boolean schemeValid) {
-        this.schemeValid = schemeValid;
+    public void setSchemaValid(boolean schemaValid) {
+        this.schemaValid = schemaValid;
     }
 
     public boolean isTableValid() {
@@ -49,6 +49,6 @@ public class ValidationStatus {
     }
 
     public boolean validationSucceed() {
-        return schemeValid && tableValid && columnDuplicates && columnsExist;
+        return schemaValid && tableValid && columnDuplicates && columnsExist;
     }
 }

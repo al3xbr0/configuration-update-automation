@@ -1,7 +1,7 @@
 package ru.w.automation.domain;
 
 public enum ConfigurationUpdateFieldType {
-    SCHEME("Scheme name"),
+    SCHEMA("Schema name"),
     TABLE("Table name"),
     COLUMNS("Set of columns"),
     FREQUENCY("Frequency"),
@@ -16,9 +16,9 @@ public enum ConfigurationUpdateFieldType {
     }
 
     public static ConfigurationUpdateFieldType fromJiraName(String name) {
-        for (ConfigurationUpdateFieldType t : ConfigurationUpdateFieldType.values()) {
-            if (t.fieldTypeName.equalsIgnoreCase(name)) {
-                return t;
+        for (ConfigurationUpdateFieldType type : ConfigurationUpdateFieldType.values()) {
+            if (type.fieldTypeName.equalsIgnoreCase(name)) {
+                return type;
             }
         }
         return UNWANTED_FIELD;

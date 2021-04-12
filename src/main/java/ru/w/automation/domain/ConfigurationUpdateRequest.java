@@ -20,7 +20,7 @@ public class ConfigurationUpdateRequest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationUpdateRequest.class);
 
-    private static final List<ConfigurationUpdateFieldType> REQUIRED_FIELDS = List.of(SCHEME, TABLE, FREQUENCY, CREATE_SNAPSHOTS);
+    private static final List<ConfigurationUpdateFieldType> REQUIRED_FIELDS = List.of(SCHEMA, TABLE, FREQUENCY, CREATE_SNAPSHOTS);
 
     private static final Pattern COLUMNS_FIELD_CORRECT_PATTERN = Pattern.compile(
             "^(?:\\w+\\s*:\\s*\\w+(?:,\\s*(?!$)|\\s*$))+$"
@@ -30,7 +30,7 @@ public class ConfigurationUpdateRequest {
     );
 
     private final String issueKey;
-    private final String schemeName;
+    private final String schemaName;
     private final String tableName;
     //private final Map<String, String> columns;
     private final Collection<Column> columns;
@@ -42,8 +42,8 @@ public class ConfigurationUpdateRequest {
         return issueKey;
     }
 
-    public String getSchemeName() {
-        return schemeName;
+    public String getSchemaName() {
+        return schemaName;
     }
 
     public String getTableName() {
@@ -66,9 +66,9 @@ public class ConfigurationUpdateRequest {
         return !columns.isEmpty();
     }
 
-    public ConfigurationUpdateRequest(String issueKey, String schemeName, String tableName, Collection<Column> columns, int frequency, boolean createSnapshots) {
+    public ConfigurationUpdateRequest(String issueKey, String schemaName, String tableName, Collection<Column> columns, int frequency, boolean createSnapshots) {
         this.issueKey = issueKey;
-        this.schemeName = schemeName;
+        this.schemaName = schemaName;
         this.tableName = tableName;
         this.columns = columns;
         this.frequency = frequency;
@@ -93,7 +93,7 @@ public class ConfigurationUpdateRequest {
             throw new IllegalArgumentException("Some of required fields are not provided");
         }
 
-        String schemeName = (String) fields.get(SCHEME);
+        String schemaName = (String) fields.get(SCHEMA);
         String tableName = (String) fields.get(TABLE);
         int frequency = ((Double) fields.get(FREQUENCY))
                 .intValue();
@@ -125,8 +125,11 @@ public class ConfigurationUpdateRequest {
                         )
                 );
             }
+            LOGGER.info("\"Set of columns\" field parsed successfully");
+        } else {
+            LOGGER.info("No columns to parse");
         }
 
-        return new ConfigurationUpdateRequest(issue.getKey(), schemeName, tableName, columns, frequency, createSnapshots);
+        return new ConfigurationUpdateRequest(issue.getKey(), schemaName, tableName, columns, frequency, createSnapshots);
     }
 }
