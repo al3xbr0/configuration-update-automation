@@ -7,9 +7,8 @@ import org.springframework.stereotype.Component;
 import ru.w.automation.domain.ConfigurationUpdateRequest;
 import ru.w.automation.domain.ValidationStatus;
 import ru.w.automation.service.JiraIntegrationService;
-//import ru.w.automation.service.RequestService;
 
-@Component
+@Component("buildRequestDelegate")
 public class BuildRequestDelegate implements JavaDelegate {
 
     @Autowired
@@ -18,9 +17,7 @@ public class BuildRequestDelegate implements JavaDelegate {
     @Override
     public void execute(DelegateExecution execution) {
         String issueKey = (String) execution.getVariable("issueKey");
-        ConfigurationUpdateRequest request = ConfigurationUpdateRequest.of(
-                jiraIntegrationService.getIssue(issueKey)
-        );
+        ConfigurationUpdateRequest request = ConfigurationUpdateRequest.of(jiraIntegrationService.getIssue(issueKey));
         execution.setVariable("request", request);
         execution.setVariable("validationStatus", new ValidationStatus());
     }

@@ -14,19 +14,6 @@
       <bpmn:outgoing>Flow_DuplicatesFoundYes</bpmn:outgoing>
       <bpmn:outgoing>Flow_DuplicatesFoundNo</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_RemoveDuplicatesAndReport" name="Убрать поля-дубликаты и сообщить в комментарии">
-      <bpmn:incoming>Flow_DuplicatesFoundYes</bpmn:incoming>
-      <bpmn:outgoing>Flow_1q8829f</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:task id="Activity_CheckColumnsMapping" name="Проверить существование колонок и соответствие их типов">
-      <bpmn:incoming>Flow_1cr3xtn</bpmn:incoming>
-      <bpmn:outgoing>Flow_1vloyt3</bpmn:outgoing>
-      <bpmn:property id="Property_0e2atwv" name="__targetRef_placeholder" />
-      <bpmn:dataInputAssociation id="DataInputAssociation_1dbmrbq">
-        <bpmn:sourceRef>DataStoreReference_Postgresql</bpmn:sourceRef>
-        <bpmn:targetRef>Property_0e2atwv</bpmn:targetRef>
-      </bpmn:dataInputAssociation>
-    </bpmn:task>
     <bpmn:exclusiveGateway id="Gateway_0t8u3yi">
       <bpmn:incoming>Flow_DuplicatesFoundNo</bpmn:incoming>
       <bpmn:incoming>Flow_1q8829f</bpmn:incoming>
@@ -43,30 +30,21 @@
     </bpmn:task>
     <bpmn:dataStoreReference id="DataStoreReference_Postgresql" name="PostgreSQL" />
     <bpmn:sequenceFlow id="Flow_DuplicatesFoundYes" name="Да" sourceRef="Gateway_DuplicatesFound" targetRef="Activity_RemoveDuplicatesAndReport">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${duplicatesFound == true}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${validationStatus.hasColumnDuplicates()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_DuplicatesFoundNo" name="Нет" sourceRef="Gateway_DuplicatesFound" targetRef="Gateway_0t8u3yi">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${duplicatesFound == false}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!validationStatus.hasColumnDuplicates()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1q8829f" sourceRef="Activity_RemoveDuplicatesAndReport" targetRef="Gateway_0t8u3yi" />
     <bpmn:sequenceFlow id="Flow_1cr3xtn" sourceRef="Gateway_0t8u3yi" targetRef="Activity_CheckColumnsMapping" />
     <bpmn:sequenceFlow id="Flow_1vloyt3" sourceRef="Activity_CheckColumnsMapping" targetRef="Gateway_ColumnsExist" />
     <bpmn:sequenceFlow id="Flow_ColumnsExistYes" name="Да" sourceRef="Gateway_ColumnsExist" targetRef="Gateway_0bf68ei">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${columnsExist == true}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${validationStatus.areColumnsExist()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_07u57w5" sourceRef="StartEvent_ValidationNeeded" targetRef="Activity_CheckSchema" />
     <bpmn:sequenceFlow id="Flow_SchemaExistsNo" name="Нет" sourceRef="Gateway_SchemaExists" targetRef="Activity_ReportMissingSchema">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${schemeExists == false}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!validationStatus.isSchemaValid()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:task id="Activity_CheckTable" name="Проверить существование таблицы в схеме" camunda:asyncBefore="true">
-      <bpmn:incoming>Flow_SchemaExistsYes</bpmn:incoming>
-      <bpmn:outgoing>Flow_04xx53h</bpmn:outgoing>
-      <bpmn:property id="Property_1lcnrbl" name="__targetRef_placeholder" />
-      <bpmn:dataInputAssociation id="DataInputAssociation_1yb00ms">
-        <bpmn:sourceRef>DataStoreReference_Postgresql</bpmn:sourceRef>
-        <bpmn:targetRef>Property_1lcnrbl</bpmn:targetRef>
-      </bpmn:dataInputAssociation>
-    </bpmn:task>
     <bpmn:exclusiveGateway id="Gateway_TableExists" name="Таблица существует?">
       <bpmn:incoming>Flow_04xx53h</bpmn:incoming>
       <bpmn:outgoing>Flow_TableExistsYes</bpmn:outgoing>
@@ -74,21 +52,17 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_04xx53h" sourceRef="Activity_CheckTable" targetRef="Gateway_TableExists" />
     <bpmn:sequenceFlow id="Flow_TableExistsYes" name="Да" sourceRef="Gateway_TableExists" targetRef="Gateway_ColumnsSetEmpty">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${tableExists == true}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${validationStatus.isTableValid()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:task id="Activity_ReportMissingTable" name="Написать: запрошенная таблица не существует">
-      <bpmn:incoming>Flow_TableExistsNo</bpmn:incoming>
-      <bpmn:outgoing>Flow_14fv64t</bpmn:outgoing>
-    </bpmn:task>
     <bpmn:sequenceFlow id="Flow_TableExistsNo" name="Нет" sourceRef="Gateway_TableExists" targetRef="Activity_ReportMissingTable">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${tableExists == false}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!validationStatus.isTableValid()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:task id="Activity_ReportMissingColumns" name="Написать: отсутствуют колонки в таблице">
       <bpmn:incoming>Flow_ColumnsExistNo</bpmn:incoming>
       <bpmn:outgoing>Flow_0z7jmd3</bpmn:outgoing>
     </bpmn:task>
     <bpmn:sequenceFlow id="Flow_ColumnsExistNo" name="Нет" sourceRef="Gateway_ColumnsExist" targetRef="Activity_ReportMissingColumns">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${columnsExist == false}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!validationStatus.areColumnsExist()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:endEvent id="EndEvent_ValidationSucceed" name="Валидация пройдена успешно">
       <bpmn:incoming>Flow_1i3q15z</bpmn:incoming>
@@ -110,7 +84,7 @@
       <bpmn:outgoing>Flow_ColumnsSetEmptyYes</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_ColumnsSetEmptyNo" name="Нет" sourceRef="Gateway_ColumnsSetEmpty" targetRef="Activity_CheckColumnsForDuplicates">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${columnsEmpty == false}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${request.areColumnsSpecified()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_0bf68ei">
       <bpmn:incoming>Flow_ColumnsExistYes</bpmn:incoming>
@@ -119,35 +93,63 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_05fnffo" sourceRef="Gateway_0bf68ei" targetRef="Activity_ReportSuccessfulValidation" />
     <bpmn:sequenceFlow id="Flow_ColumnsSetEmptyYes" name="Да" sourceRef="Gateway_ColumnsSetEmpty" targetRef="Gateway_0bf68ei">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${columnsEmpty == true}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!request.areColumnsSpecified()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:endEvent id="EndEvent_ValidationFailed" name="Валидация не пройдена">
       <bpmn:incoming>Flow_1j81fw1</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:dataObjectReference id="DataObjectReference_Comment" name="Комментарий к задаче" dataObjectRef="DataObject_1k75w55" />
     <bpmn:dataObject id="DataObject_1k75w55" />
-    <bpmn:task id="Activity_CheckColumnsForDuplicates" name="Проверить список колонок на дубликаты" camunda:asyncBefore="true">
-      <bpmn:incoming>Flow_ColumnsSetEmptyNo</bpmn:incoming>
-      <bpmn:outgoing>Flow_1s8grw9</bpmn:outgoing>
-    </bpmn:task>
     <bpmn:sequenceFlow id="Flow_1s8grw9" sourceRef="Activity_CheckColumnsForDuplicates" targetRef="Gateway_DuplicatesFound" />
     <bpmn:sequenceFlow id="Flow_00xdpxf" sourceRef="Activity_CheckSchema" targetRef="Gateway_SchemaExists" />
     <bpmn:sequenceFlow id="Flow_SchemaExistsYes" name="Да" sourceRef="Gateway_SchemaExists" targetRef="Activity_CheckTable">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${validationStatus.isSchemaValid()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:task id="Activity_CheckSchema" name="Проверить существование схемы в БД" camunda:asyncBefore="true">
+    <bpmn:serviceTask id="Activity_CheckSchema" name="Проверить существование схемы в БД" camunda:asyncBefore="true" camunda:delegateExpression="${checkSchemaDelegate}">
       <bpmn:incoming>Flow_07u57w5</bpmn:incoming>
       <bpmn:outgoing>Flow_00xdpxf</bpmn:outgoing>
-      <bpmn:property id="Property_09lfkhu" name="__targetRef_placeholder" />
+      <bpmn:property id="Property_1qm5hjt" name="__targetRef_placeholder" />
       <bpmn:dataInputAssociation id="DataInputAssociation_0ivf5hl">
         <bpmn:sourceRef>DataStoreReference_Postgresql</bpmn:sourceRef>
-        <bpmn:targetRef>Property_09lfkhu</bpmn:targetRef>
+        <bpmn:targetRef>Property_1qm5hjt</bpmn:targetRef>
       </bpmn:dataInputAssociation>
-    </bpmn:task>
-    <bpmn:task id="Activity_ReportMissingSchema" name="Написать: запрошенная схема не существует">
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_CheckTable" name="Проверить существование таблицы в схеме" camunda:asyncBefore="true" camunda:delegateExpression="${checkTableDelegate}">
+      <bpmn:incoming>Flow_SchemaExistsYes</bpmn:incoming>
+      <bpmn:outgoing>Flow_04xx53h</bpmn:outgoing>
+      <bpmn:property id="Property_04r8a8r" name="__targetRef_placeholder" />
+      <bpmn:dataInputAssociation id="DataInputAssociation_1yb00ms">
+        <bpmn:sourceRef>DataStoreReference_Postgresql</bpmn:sourceRef>
+        <bpmn:targetRef>Property_04r8a8r</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_CheckColumnsForDuplicates" name="Проверить список колонок на дубликаты" camunda:asyncBefore="true" camunda:delegateExpression="${checkColumnsForDuplicatesDelegate}">
+      <bpmn:incoming>Flow_ColumnsSetEmptyNo</bpmn:incoming>
+      <bpmn:outgoing>Flow_1s8grw9</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_RemoveDuplicatesAndReport" name="Убрать дубликаты и сообщить в комментарии" camunda:delegateExpression="${removeDuplicatesAndReportDelegate}">
+      <bpmn:incoming>Flow_DuplicatesFoundYes</bpmn:incoming>
+      <bpmn:outgoing>Flow_1q8829f</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_CheckColumnsMapping" name="Проверить соответствие типов колонок " camunda:delegateExpression="${checkColumnsMappingDelegate}">
+      <bpmn:incoming>Flow_1cr3xtn</bpmn:incoming>
+      <bpmn:outgoing>Flow_1vloyt3</bpmn:outgoing>
+      <bpmn:property id="Property_045ici6" name="__targetRef_placeholder" />
+      <bpmn:dataInputAssociation id="DataInputAssociation_1dbmrbq">
+        <bpmn:sourceRef>DataStoreReference_Postgresql</bpmn:sourceRef>
+        <bpmn:targetRef>Property_045ici6</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:serviceTask>
+    <bpmn:scriptTask id="Activity_ReportMissingTable" name="Написать: запрошенная таблица не существует" scriptFormat="java">
+      <bpmn:incoming>Flow_TableExistsNo</bpmn:incoming>
+      <bpmn:outgoing>Flow_14fv64t</bpmn:outgoing>
+      <bpmn:script>${validationStatus.appendComment("q")}</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="Activity_ReportMissingSchema" name="Написать: запрошенная схема не существует" scriptFormat="java">
       <bpmn:incoming>Flow_SchemaExistsNo</bpmn:incoming>
       <bpmn:outgoing>Flow_0vf6k35</bpmn:outgoing>
-    </bpmn:task>
+      <bpmn:script>${validationStatus.appendComment("y")}</bpmn:script>
+    </bpmn:scriptTask>
     <bpmn:textAnnotation id="TextAnnotation_Comment">
       <bpmn:text>Текст комментария составляется операцией, к которой перешло управление</bpmn:text>
     </bpmn:textAnnotation>
@@ -302,12 +304,6 @@
           <dc:Bounds x="860" y="231" width="87" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_063abwc_di" bpmnElement="Activity_RemoveDuplicatesAndReport">
-        <dc:Bounds x="936" y="320" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0sozmb3_di" bpmnElement="Activity_CheckColumnsMapping">
-        <dc:Bounds x="1106" y="237" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0t8u3yi_di" bpmnElement="Gateway_0t8u3yi" isMarkerVisible="true">
         <dc:Bounds x="1031" y="252" width="50" height="50" />
       </bpmndi:BPMNShape>
@@ -326,17 +322,11 @@
           <dc:Bounds x="529" y="144" width="61" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0hwa8yp_di" bpmnElement="Activity_CheckTable">
-        <dc:Bounds x="433" y="237" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_19bjfr3_di" bpmnElement="Gateway_TableExists" isMarkerVisible="true">
         <dc:Bounds x="565" y="252" width="50" height="50" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="557" y="223" width="65" height="27" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1v1s80w_di" bpmnElement="Activity_ReportMissingTable">
-        <dc:Bounds x="710" y="433" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0jvtz4e_di" bpmnElement="Activity_ReportMissingColumns">
         <dc:Bounds x="1210" y="342" width="100" height="80" />
@@ -371,17 +361,29 @@
           <dc:Bounds x="828" y="431" width="79" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0gohzik_di" bpmnElement="Activity_CheckColumnsForDuplicates">
-        <dc:Bounds x="746" y="237" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1fkz9ye_di" bpmnElement="Activity_CheckSchema">
-        <dc:Bounds x="220" y="237" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1x61cfc_di" bpmnElement="Activity_ReportMissingSchema">
-        <dc:Bounds x="710" y="529" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_05rbwfk_di" bpmnElement="TextAnnotation_Comment">
         <dc:Bounds x="966" y="502" width="270" height="40" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1akskk1_di" bpmnElement="Activity_CheckSchema">
+        <dc:Bounds x="220" y="237" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1mlh78r_di" bpmnElement="Activity_CheckTable">
+        <dc:Bounds x="433" y="237" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0x5idz1_di" bpmnElement="Activity_CheckColumnsForDuplicates">
+        <dc:Bounds x="746" y="237" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_13mcbl1_di" bpmnElement="Activity_RemoveDuplicatesAndReport">
+        <dc:Bounds x="936" y="320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0dvvcpt_di" bpmnElement="Activity_CheckColumnsMapping">
+        <dc:Bounds x="1106" y="237" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_07vkmhb_di" bpmnElement="Activity_ReportMissingTable">
+        <dc:Bounds x="710" y="433" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ankbf8_di" bpmnElement="Activity_ReportMissingSchema">
+        <dc:Bounds x="710" y="529" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="DataInputAssociation_1dbmrbq_di" bpmnElement="DataInputAssociation_1dbmrbq">
         <di:waypoint x="585" y="108" />

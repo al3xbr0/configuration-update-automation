@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import ru.w.automation.domain.ValidationStatus;
 import ru.w.automation.service.JiraIntegrationService;
 
-@Component
+@Component("sendCommentDelegate")
 public class SendCommentDelegate implements JavaDelegate {
 
     @Autowired

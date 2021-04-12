@@ -117,14 +117,14 @@
       <bpmn:outgoing>Flow_11k535w</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0i6423k" messageRef="Message_02997m3" />
     </bpmn:intermediateCatchEvent>
-    <bpmn:serviceTask id="Activity_BuildRequest" name="Составить запрос из полей заявки" camunda:asyncBefore="true">
+    <bpmn:serviceTask id="Activity_BuildRequest" name="Составить запрос из полей заявки" camunda:asyncBefore="true" camunda:delegateExpression="${buildRequestDelegate}">
       <bpmn:incoming>Flow_0ow4ccd</bpmn:incoming>
       <bpmn:outgoing>Flow_1ej1wnx</bpmn:outgoing>
       <bpmn:dataOutputAssociation id="DataOutputAssociation_13eukre">
         <bpmn:targetRef>DataObjectReference_Request</bpmn:targetRef>
       </bpmn:dataOutputAssociation>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="Activity_SendComment" name="Отправить комментарий о результате валидации">
+    <bpmn:serviceTask id="Activity_SendComment" name="Отправить комментарий о результате валидации" camunda:delegateExpression="${sendCommentDelegate}">
       <bpmn:incoming>Flow_0d9897l</bpmn:incoming>
       <bpmn:outgoing>Flow_0ihd4pc</bpmn:outgoing>
       <bpmn:property id="Property_04tsffi" name="__targetRef_placeholder" />
@@ -338,15 +338,15 @@
         <di:waypoint x="560" y="124" />
         <di:waypoint x="598" y="124" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="DataInputAssociation_11hnkyv_di" bpmnElement="DataInputAssociation_11hnkyv">
-        <di:waypoint x="634" y="124" />
-        <di:waypoint x="670" y="124" />
-        <di:waypoint x="670" y="220" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="DataOutputAssociation_13eukre_di" bpmnElement="DataOutputAssociation_13eukre">
         <di:waypoint x="340" y="220" />
         <di:waypoint x="340" y="124" />
         <di:waypoint x="425" y="124" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataInputAssociation_11hnkyv_di" bpmnElement="DataInputAssociation_11hnkyv">
+        <di:waypoint x="634" y="124" />
+        <di:waypoint x="670" y="124" />
+        <di:waypoint x="670" y="220" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

@@ -6,7 +6,7 @@ public class ValidationStatus {
     private boolean columnDuplicates;
     private boolean columnsExist;
 
-    private String validationComment;
+    private StringBuilder validationComment;
 
     public boolean isSchemaValid() {
         return schemaValid;
@@ -24,7 +24,7 @@ public class ValidationStatus {
         this.tableValid = tableValid;
     }
 
-    public boolean isColumnDuplicates() {
+    public boolean hasColumnDuplicates() {
         return columnDuplicates;
     }
 
@@ -32,7 +32,7 @@ public class ValidationStatus {
         this.columnDuplicates = columnDuplicates;
     }
 
-    public boolean isColumnsExist() {
+    public boolean areColumnsExist() {
         return columnsExist;
     }
 
@@ -41,11 +41,11 @@ public class ValidationStatus {
     }
 
     public String getValidationComment() {
-        return validationComment;
+        return validationComment.toString();
     }
 
-    public void setValidationComment(String validationComment) {
-        this.validationComment = validationComment;
+    public void appendComment(String text){
+        validationComment.append(text);
     }
 
     public boolean validationSucceed() {
