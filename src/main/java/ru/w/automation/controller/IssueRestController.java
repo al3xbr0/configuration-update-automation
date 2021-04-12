@@ -8,14 +8,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class IssueCreatedController {
+public class IssueRestController {
 
     @Autowired
     private RuntimeService runtimeService;
 
-    @PostMapping(value = "api/jira/create/{key}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void created(@PathVariable String issueKey) {
+    @PostMapping(value = "api/jira/create/{issueKey:[a-zA-Z]+-\\d+}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void create(@PathVariable("issueKey") String issueKey) {
         runtimeService.createProcessInstanceById("").setVariable("issueKey", issueKey).execute();
+    }
 
+    @PostMapping(value = "api/jira/update/{issueKey:[a-zA-Z]+-\\d+}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void update(@PathVariable("issueKey") String issueKey) {
+        //TODO
     }
 }
