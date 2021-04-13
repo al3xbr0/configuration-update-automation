@@ -1,10 +1,12 @@
 package ru.w.automation.dao;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-import ru.w.automation.domain.ColumnDescription;
+import ru.w.automation.domain.Column;
 
-import java.util.List;
+import java.util.Set;
 
+@Mapper
 public interface DatabaseDao {
 
     @Select(
@@ -23,5 +25,5 @@ public interface DatabaseDao {
             "SELECT column_name as columnName, data_type as dataType, character_maximum_length as charMaxLen" +
                     " FROM information_schema.columns WHERE table_schema = #{schemaName} AND table_name = #{tableName}"
     )
-    List<ColumnDescription> tableDesc(String schemaName, String tableName);
+    Set<Column> tableDescription(String schemaName, String tableName);
 }

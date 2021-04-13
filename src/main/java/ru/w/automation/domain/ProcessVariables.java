@@ -2,6 +2,8 @@ package ru.w.automation.domain;
 
 import org.camunda.bpm.engine.delegate.VariableScope;
 
+import java.util.Collection;
+
 import static ru.w.automation.domain.ProcessConstants.*;
 
 public class ProcessVariables {
@@ -30,5 +32,17 @@ public class ProcessVariables {
 
     public void setValidationStatus(ValidationStatus validationStatus) {
         variableScope.setVariable(VAR_NAME_VALIDATION_STATUS, validationStatus);
+    }
+
+    public Collection<Column> getUniqueColumns() {
+        return (Collection<Column>) variableScope.getVariable(VAR_NAME_UNIQUE_COLUMNS);
+    }
+
+    public void setUniqueColumns(Collection<Column> uniqueColumns) {
+        variableScope.setVariable(VAR_NAME_UNIQUE_COLUMNS, uniqueColumns);
+    }
+
+    public void removeUniqueColumns() {
+        variableScope.removeVariable(VAR_NAME_UNIQUE_COLUMNS);
     }
 }

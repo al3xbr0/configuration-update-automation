@@ -4,7 +4,7 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.w.automation.domain.ValidationStatus;
+import ru.w.automation.domain.ProcessVariables;
 import ru.w.automation.service.JiraIntegrationService;
 
 @Component("sendCommentDelegate")
@@ -15,8 +15,10 @@ public class SendCommentDelegate implements JavaDelegate {
 
     @Override
     public void execute(DelegateExecution execution) {
-        String issueKey = (String) execution.getVariable("issueKey");
-        String comment = ((ValidationStatus) execution.getVariable("validationStatus")).getValidationComment();
-        jiraIntegrationService.addComment(issueKey, comment);
+        ProcessVariables variables = new ProcessVariables(execution);
+        jiraIntegrationService.addComment(
+                variables.getIssueKey(),
+                variables.getValidationStatus().getValidationComment()
+        );
     }
 }

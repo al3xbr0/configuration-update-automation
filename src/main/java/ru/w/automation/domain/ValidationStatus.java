@@ -1,12 +1,16 @@
 package ru.w.automation.domain;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public class ValidationStatus {
     private boolean schemaValid;
     private boolean tableValid;
-    private boolean columnDuplicates;
-    private boolean columnsExist;
+    private final Set<Column> columnsDuplicates = new HashSet<>();
+    private final Set<Column> invalidColumns = new HashSet<>();
 
-    private StringBuilder validationComment;
+    private final StringBuilder validationComment = new StringBuilder();
 
     public boolean isSchemaValid() {
         return schemaValid;
@@ -24,31 +28,43 @@ public class ValidationStatus {
         this.tableValid = tableValid;
     }
 
+    public String getPrintableColumnsDuplicates() {
+        return columnsDuplicates.stream().map(Column::getName)
+                .collect(Collectors.joining(", "));
+    }
+
     public boolean hasColumnDuplicates() {
-        return columnDuplicates;
+        return !columnsDuplicates.isEmpty();
     }
 
-    public void setColumnDuplicates(boolean columnDuplicates) {
-        this.columnDuplicates = columnDuplicates;
+    public void addColumnsDuplicates(Set<Column> columnsDuplicates) {
+        this.columnsDuplicates.addAll(columnsDuplicates);
     }
 
-    public boolean areColumnsExist() {
-        return columnsExist;
+    public String getPrintableInvalidColumns() {
+        return invalidColumns.stream().map(
+                column -> column.getName() + " : " + column.getDataType()
+        )
+                .collect(Collectors.joining("\n"));
     }
 
-    public void setColumnsExist(boolean columnsExist) {
-        this.columnsExist = columnsExist;
+    public void addInvalidColumn(Column column) {
+        invalidColumns.add(column);
+    }
+
+    public boolean getColumnsExist() {
+        return invalidColumns.isEmpty();
     }
 
     public String getValidationComment() {
         return validationComment.toString();
     }
 
-    public void appendComment(String text){
-        validationComment.append(text);
+    public void appendValidationComment(String text) {
+        validationComment.append(text).append("\n");
     }
 
-    public boolean validationSucceed() {
-        return schemaValid && tableValid && columnDuplicates && columnsExist;
+    public boolean isValidationSuccessful() {
+        return schemaValid && tableValid && getColumnsExist();
     }
 }
