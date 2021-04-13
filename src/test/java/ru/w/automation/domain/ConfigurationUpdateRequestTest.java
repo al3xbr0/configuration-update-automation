@@ -30,7 +30,7 @@ class ConfigurationUpdateRequestTest {
     void of() {
         ConfigurationUpdateRequest request = ConfigurationUpdateRequest.of(issue);
 
-        assertEquals("sch", request.getSchemeName());
+        assertEquals("sch", request.getSchemaName());
         assertEquals("tab", request.getTableName());
 
         Collection<Column> expectedColumns = new ArrayList<>();
