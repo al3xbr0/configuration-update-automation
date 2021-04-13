@@ -22,17 +22,18 @@ public class ConfigurationUpdateRequest {
 
     private static final List<ConfigurationUpdateFieldType> REQUIRED_FIELDS = List.of(SCHEMA, TABLE, FREQUENCY, CREATE_SNAPSHOTS);
 
-    private static final Pattern COLUMNS_FIELD_CORRECT_PATTERN = Pattern.compile(
-            "^(?:\\w+\\s*:\\s*\\w+(?:,\\s*(?!$)|\\s*$))+$"
-    );
-    private static final Pattern COLUMNS_ITEMS_PATTERN = Pattern.compile(
-            "(?<name>\\w+)\\s*:\\s*(?<type>\\w+)"
-    );
+    private static final Pattern COLUMNS_FIELD_CORRECT_PATTERN =
+            Pattern.compile(
+                    "^\\s*(?:\\w+\\s*:\\s*(?:\\w\\s*)*\\w+(?:|\\(\\d\\))(?:\\s*,\\s*(?!$)|\\s*$))+$"
+            );
+    private static final Pattern COLUMNS_ITEMS_PATTERN =
+            Pattern.compile(
+                    "(?<name>\\w+)\\s*:\\s*(?<type>(?:\\w\\s*)*\\w+(?:|\\(\\d\\)))"
+            );
 
     private final String issueKey;
     private final String schemaName;
     private final String tableName;
-    //private final Map<String, String> columns;
     private final Collection<Column> columns;
     private final int frequency;
     private final boolean createSnapshots;
@@ -78,16 +79,17 @@ public class ConfigurationUpdateRequest {
     public static ConfigurationUpdateRequest of(Issue issue) {
         LOGGER.info("Building request from issue {}", issue.getKey());
 
-        Map<ConfigurationUpdateFieldType, Object> fields = StreamSupport.stream(issue.getFields().spliterator(), false)
-                .filter(
-                        field -> fromJiraName(field.getName()) != UNWANTED_FIELD
-                )
-                .collect(
-                        Collectors.toMap(
-                                field -> fromJiraName(field.getName()),
-                                IssueField::getValue
+        Map<ConfigurationUpdateFieldType, Object> fields =
+                StreamSupport.stream(issue.getFields().spliterator(), false)
+                        .filter(
+                                field -> fromJiraName(field.getName()) != UNWANTED_FIELD
                         )
-                );
+                        .collect(
+                                Collectors.toMap(
+                                        field -> fromJiraName(field.getName()),
+                                        IssueField::getValue
+                                )
+                        );
         if (!fields.keySet().containsAll(REQUIRED_FIELDS)) {
             LOGGER.error("Some required fields are missing in issue {}", issue.getKey());
             throw new IllegalArgumentException("Some of required fields are not provided");
@@ -95,15 +97,13 @@ public class ConfigurationUpdateRequest {
 
         String schemaName = (String) fields.get(SCHEMA);
         String tableName = (String) fields.get(TABLE);
-        int frequency = ((Double) fields.get(FREQUENCY))
-                .intValue();
+        int frequency = ((Double) fields.get(FREQUENCY)).intValue();
 
         boolean createSnapshots = false;
         try {
             createSnapshots =
                     "yes".equalsIgnoreCase(
-                            ((JSONObject) fields.get(CREATE_SNAPSHOTS))
-                                    .getString("value")
+                            ((JSONObject) fields.get(CREATE_SNAPSHOTS)).getString("value")
                     );
         } catch (JSONException e) {
             LOGGER.error("Something wrong with \"Extraction type\" field. Check your Jira Custom Fields settings", e);
