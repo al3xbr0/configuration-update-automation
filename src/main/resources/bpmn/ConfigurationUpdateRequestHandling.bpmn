@@ -21,7 +21,7 @@
       <bpmn:incoming>Flow_IssueStatusClosed</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_IssueStatusClosed" name="Заявка&#10;закрыта" sourceRef="Gateway_IssueStatus" targetRef="EndEvent_RequestCanceled">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${issueClosed == true}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:dataType="bpmn:tFormalExpression">${issueClosed == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_14bg0ve" sourceRef="Gateway_IssueStatus" targetRef="Gateway_14ye3e6" />
     <bpmn:dataObjectReference id="DataObjectReference_Request" name="Запрос" dataObjectRef="DataObject_18fkpp1" />
@@ -54,10 +54,10 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0ihd4pc" sourceRef="Activity_SendComment" targetRef="Gateway_ValidationSucceeded" />
     <bpmn:sequenceFlow id="Flow_ValidationSucceedNo" name="Нет" sourceRef="Gateway_ValidationSucceeded" targetRef="Activity_SubscribeForUpdates">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!request.isValid()}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!validationStatus.isValidationSuccessful()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_ValidationSucceedYes" name="Да" sourceRef="Gateway_ValidationSucceeded" targetRef="Activity_ExecuteRequest">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${request.isValid()}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${validationStatus.isValidationSuccessful()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:callActivity id="Activity_ExecuteRequest" name="Выполнение запроса" calledElement="RequestExecutionProcess">
       <bpmn:incoming>Flow_ValidationSucceedYes</bpmn:incoming>
@@ -74,13 +74,13 @@
       <bpmn:outgoing>Flow_MergedToMasterNo</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_MergedToMasterYes" name="Да" sourceRef="Gateway_MergedToMaster" targetRef="Activity_CallRelease">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${mergedToMaster == true}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:dataType="bpmn:tFormalExpression">${mergedToMaster == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:endEvent id="EndEvent_ConfigurationRejected" name="Обновленная конфигурация отклонена">
       <bpmn:incoming>Flow_MergedToMasterNo</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_MergedToMasterNo" name="Нет" sourceRef="Gateway_MergedToMaster" targetRef="EndEvent_ConfigurationRejected">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${mergedToMaster == false}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:dataType="bpmn:tFormalExpression">${mergedToMaster == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:task id="Activity_CallRelease" name="Вызвать задачу Release в Jenkins">
       <bpmn:incoming>Flow_MergedToMasterYes</bpmn:incoming>

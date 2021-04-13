@@ -24,26 +24,22 @@
       <bpmn:outgoing>Flow_ColumnsExistYes</bpmn:outgoing>
       <bpmn:outgoing>Flow_ColumnsExistNo</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_ReportSuccessfulValidation" name="Написать: валидация пройдена">
-      <bpmn:incoming>Flow_05fnffo</bpmn:incoming>
-      <bpmn:outgoing>Flow_1i3q15z</bpmn:outgoing>
-    </bpmn:task>
     <bpmn:dataStoreReference id="DataStoreReference_Postgresql" name="PostgreSQL" />
     <bpmn:sequenceFlow id="Flow_DuplicatesFoundYes" name="Да" sourceRef="Gateway_DuplicatesFound" targetRef="Activity_RemoveDuplicatesAndReport">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${validationStatus.hasColumnDuplicates()}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:dataType="bpmn:tFormalExpression">${validationStatus.hasColumnDuplicates()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_DuplicatesFoundNo" name="Нет" sourceRef="Gateway_DuplicatesFound" targetRef="Gateway_0t8u3yi">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!validationStatus.hasColumnDuplicates()}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:dataType="bpmn:tFormalExpression">${!validationStatus.hasColumnDuplicates()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1q8829f" sourceRef="Activity_RemoveDuplicatesAndReport" targetRef="Gateway_0t8u3yi" />
     <bpmn:sequenceFlow id="Flow_1cr3xtn" sourceRef="Gateway_0t8u3yi" targetRef="Activity_CheckColumnsMapping" />
     <bpmn:sequenceFlow id="Flow_1vloyt3" sourceRef="Activity_CheckColumnsMapping" targetRef="Gateway_ColumnsExist" />
     <bpmn:sequenceFlow id="Flow_ColumnsExistYes" name="Да" sourceRef="Gateway_ColumnsExist" targetRef="Gateway_0bf68ei">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${validationStatus.areColumnsExist()}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${validationStatus.getColumnsExist()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_07u57w5" sourceRef="StartEvent_ValidationNeeded" targetRef="Activity_CheckSchema" />
     <bpmn:sequenceFlow id="Flow_SchemaExistsNo" name="Нет" sourceRef="Gateway_SchemaExists" targetRef="Activity_ReportMissingSchema">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!validationStatus.isSchemaValid()}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:dataType="bpmn:tFormalExpression">${!validationStatus.isSchemaValid()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_TableExists" name="Таблица существует?">
       <bpmn:incoming>Flow_04xx53h</bpmn:incoming>
@@ -52,17 +48,13 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_04xx53h" sourceRef="Activity_CheckTable" targetRef="Gateway_TableExists" />
     <bpmn:sequenceFlow id="Flow_TableExistsYes" name="Да" sourceRef="Gateway_TableExists" targetRef="Gateway_ColumnsSetEmpty">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${validationStatus.isTableValid()}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:dataType="bpmn:tFormalExpression">${validationStatus.isTableValid()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_TableExistsNo" name="Нет" sourceRef="Gateway_TableExists" targetRef="Activity_ReportMissingTable">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!validationStatus.isTableValid()}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:dataType="bpmn:tFormalExpression">${!validationStatus.isTableValid()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:task id="Activity_ReportMissingColumns" name="Написать: отсутствуют колонки в таблице">
-      <bpmn:incoming>Flow_ColumnsExistNo</bpmn:incoming>
-      <bpmn:outgoing>Flow_0z7jmd3</bpmn:outgoing>
-    </bpmn:task>
     <bpmn:sequenceFlow id="Flow_ColumnsExistNo" name="Нет" sourceRef="Gateway_ColumnsExist" targetRef="Activity_ReportMissingColumns">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!validationStatus.areColumnsExist()}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!validationStatus.getColumnsExist()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:endEvent id="EndEvent_ValidationSucceed" name="Валидация пройдена успешно">
       <bpmn:incoming>Flow_1i3q15z</bpmn:incoming>
@@ -72,19 +64,18 @@
       <bpmn:incoming>Flow_0z7jmd3</bpmn:incoming>
       <bpmn:incoming>Flow_14fv64t</bpmn:incoming>
       <bpmn:incoming>Flow_0vf6k35</bpmn:incoming>
-      <bpmn:outgoing>Flow_1j81fw1</bpmn:outgoing>
+      <bpmn:outgoing>Flow_18fgwek</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0z7jmd3" sourceRef="Activity_ReportMissingColumns" targetRef="Gateway_19fy81g" />
     <bpmn:sequenceFlow id="Flow_14fv64t" sourceRef="Activity_ReportMissingTable" targetRef="Gateway_19fy81g" />
     <bpmn:sequenceFlow id="Flow_0vf6k35" sourceRef="Activity_ReportMissingSchema" targetRef="Gateway_19fy81g" />
-    <bpmn:sequenceFlow id="Flow_1j81fw1" sourceRef="Gateway_19fy81g" targetRef="EndEvent_ValidationFailed" />
     <bpmn:exclusiveGateway id="Gateway_ColumnsSetEmpty" name="Список колонок пустой?">
       <bpmn:incoming>Flow_TableExistsYes</bpmn:incoming>
       <bpmn:outgoing>Flow_ColumnsSetEmptyNo</bpmn:outgoing>
       <bpmn:outgoing>Flow_ColumnsSetEmptyYes</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_ColumnsSetEmptyNo" name="Нет" sourceRef="Gateway_ColumnsSetEmpty" targetRef="Activity_CheckColumnsForDuplicates">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${request.areColumnsSpecified()}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:dataType="bpmn:tFormalExpression">${request.areColumnsSpecified()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_0bf68ei">
       <bpmn:incoming>Flow_ColumnsExistYes</bpmn:incoming>
@@ -93,17 +84,17 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_05fnffo" sourceRef="Gateway_0bf68ei" targetRef="Activity_ReportSuccessfulValidation" />
     <bpmn:sequenceFlow id="Flow_ColumnsSetEmptyYes" name="Да" sourceRef="Gateway_ColumnsSetEmpty" targetRef="Gateway_0bf68ei">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!request.areColumnsSpecified()}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:dataType="bpmn:tFormalExpression">${!request.areColumnsSpecified()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:endEvent id="EndEvent_ValidationFailed" name="Валидация не пройдена">
-      <bpmn:incoming>Flow_1j81fw1</bpmn:incoming>
+      <bpmn:incoming>Flow_1c6m6fu</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:dataObjectReference id="DataObjectReference_Comment" name="Комментарий к задаче" dataObjectRef="DataObject_1k75w55" />
     <bpmn:dataObject id="DataObject_1k75w55" />
     <bpmn:sequenceFlow id="Flow_1s8grw9" sourceRef="Activity_CheckColumnsForDuplicates" targetRef="Gateway_DuplicatesFound" />
     <bpmn:sequenceFlow id="Flow_00xdpxf" sourceRef="Activity_CheckSchema" targetRef="Gateway_SchemaExists" />
     <bpmn:sequenceFlow id="Flow_SchemaExistsYes" name="Да" sourceRef="Gateway_SchemaExists" targetRef="Activity_CheckTable">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${validationStatus.isSchemaValid()}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:dataType="bpmn:tFormalExpression">${validationStatus.isSchemaValid()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="Activity_CheckSchema" name="Проверить существование схемы в БД" camunda:asyncBefore="true" camunda:delegateExpression="${checkSchemaDelegate}">
       <bpmn:incoming>Flow_07u57w5</bpmn:incoming>
@@ -150,6 +141,23 @@
       <bpmn:outgoing>Flow_0vf6k35</bpmn:outgoing>
       <bpmn:script>${validationStatus.appendComment("y")}</bpmn:script>
     </bpmn:scriptTask>
+    <bpmn:scriptTask id="Activity_ReportMissingColumns" name="Написать: отсутствуют колонки в таблице" scriptFormat="java">
+      <bpmn:incoming>Flow_ColumnsExistNo</bpmn:incoming>
+      <bpmn:outgoing>Flow_0z7jmd3</bpmn:outgoing>
+      <bpmn:script>${validationStatus.appendValidationComment("The following columns doesn't exist in specified table:\n" + validationStatus.getPrintableInvalidColumns());}</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="Activity_ReportSuccessfulValidation" name="Написать: валидация пройдена">
+      <bpmn:incoming>Flow_05fnffo</bpmn:incoming>
+      <bpmn:outgoing>Flow_1i3q15z</bpmn:outgoing>
+      <bpmn:script>${validationStatus.appendValidationComment("Validation succeed.");}</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="Activity_ReportFailedValidation" name="Написать: валидация не пройдена">
+      <bpmn:incoming>Flow_18fgwek</bpmn:incoming>
+      <bpmn:outgoing>Flow_1c6m6fu</bpmn:outgoing>
+      <bpmn:script>${validationStatus.appendValidationComment("Validation failed.");}</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_18fgwek" sourceRef="Gateway_19fy81g" targetRef="Activity_ReportFailedValidation" />
+    <bpmn:sequenceFlow id="Flow_1c6m6fu" sourceRef="Activity_ReportFailedValidation" targetRef="EndEvent_ValidationFailed" />
     <bpmn:textAnnotation id="TextAnnotation_Comment">
       <bpmn:text>Текст комментария составляется операцией, к которой перешло управление</bpmn:text>
     </bpmn:textAnnotation>
@@ -178,7 +186,7 @@
         <di:waypoint x="1352" y="160" />
         <di:waypoint x="1352" y="252" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="690" y="213" width="13" height="14" />
+          <dc:Bounds x="690" y="230" width="13" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_05fnffo_di" bpmnElement="Flow_05fnffo">
@@ -191,10 +199,6 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="710" y="259" width="20" height="14" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1j81fw1_di" bpmnElement="Flow_1j81fw1">
-        <di:waypoint x="1285" y="473" />
-        <di:waypoint x="1312" y="473" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0vf6k35_di" bpmnElement="Flow_0vf6k35">
         <di:waypoint x="810" y="569" />
@@ -217,7 +221,7 @@
         <di:waypoint x="1260" y="302" />
         <di:waypoint x="1260" y="342" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1270" y="305" width="20" height="14" />
+          <dc:Bounds x="1270" y="310" width="20" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_02znrqi_di" bpmnElement="Flow_TableExistsNo">
@@ -286,6 +290,14 @@
           <dc:Bounds x="912" y="310" width="13" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18fgwek_di" bpmnElement="Flow_18fgwek">
+        <di:waypoint x="1285" y="473" />
+        <di:waypoint x="1331" y="473" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1c6m6fu_di" bpmnElement="Flow_1c6m6fu">
+        <di:waypoint x="1431" y="473" />
+        <di:waypoint x="1470" y="473" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_ValidationNeeded">
         <dc:Bounds x="150" y="259" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -313,9 +325,6 @@
           <dc:Bounds x="1226" y="224" width="67" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0qjvl3l_di" bpmnElement="Activity_ReportSuccessfulValidation">
-        <dc:Bounds x="1402" y="237" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="DataStoreReference_01qz14t_di" bpmnElement="DataStoreReference_Postgresql">
         <dc:Bounds x="535" y="87" width="50" height="50" />
         <bpmndi:BPMNLabel>
@@ -327,9 +336,6 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="557" y="223" width="65" height="27" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0jvtz4e_di" bpmnElement="Activity_ReportMissingColumns">
-        <dc:Bounds x="1210" y="342" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0jv180j_di" bpmnElement="EndEvent_ValidationSucceed">
         <dc:Bounds x="1534" y="259" width="36" height="36" />
@@ -349,20 +355,11 @@
       <bpmndi:BPMNShape id="Gateway_0bf68ei_di" bpmnElement="Gateway_0bf68ei" isMarkerVisible="true">
         <dc:Bounds x="1327" y="252" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_05m0i0b_di" bpmnElement="EndEvent_ValidationFailed">
-        <dc:Bounds x="1312" y="455" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1294" y="498" width="73" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="DataObjectReference_11h0xah_di" bpmnElement="DataObjectReference_Comment">
         <dc:Bounds x="850" y="375" width="36" height="50" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="828" y="431" width="79" height="27" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_05rbwfk_di" bpmnElement="TextAnnotation_Comment">
-        <dc:Bounds x="966" y="502" width="270" height="40" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1akskk1_di" bpmnElement="Activity_CheckSchema">
         <dc:Bounds x="220" y="237" width="100" height="80" />
@@ -385,17 +382,35 @@
       <bpmndi:BPMNShape id="Activity_1ankbf8_di" bpmnElement="Activity_ReportMissingSchema">
         <dc:Bounds x="710" y="529" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="DataInputAssociation_1dbmrbq_di" bpmnElement="DataInputAssociation_1dbmrbq">
-        <di:waypoint x="585" y="108" />
-        <di:waypoint x="1111" y="239" />
+      <bpmndi:BPMNShape id="TextAnnotation_05rbwfk_di" bpmnElement="TextAnnotation_Comment">
+        <dc:Bounds x="966" y="502" width="270" height="40" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0rdp8vf_di" bpmnElement="Activity_ReportMissingColumns">
+        <dc:Bounds x="1210" y="342" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_13y97rp_di" bpmnElement="Activity_ReportSuccessfulValidation">
+        <dc:Bounds x="1402" y="237" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1euzogq_di" bpmnElement="Activity_ReportFailedValidation">
+        <dc:Bounds x="1331" y="433" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_05m0i0b_di" bpmnElement="EndEvent_ValidationFailed">
+        <dc:Bounds x="1470" y="455" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1452" y="498" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="DataInputAssociation_0ivf5hl_di" bpmnElement="DataInputAssociation_0ivf5hl">
+        <di:waypoint x="535" y="99" />
+        <di:waypoint x="313" y="238" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="DataInputAssociation_1yb00ms_di" bpmnElement="DataInputAssociation_1yb00ms">
         <di:waypoint x="530" y="112" />
         <di:waypoint x="485" y="237" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="DataInputAssociation_0ivf5hl_di" bpmnElement="DataInputAssociation_0ivf5hl">
-        <di:waypoint x="535" y="99" />
-        <di:waypoint x="313" y="238" />
+      <bpmndi:BPMNEdge id="DataInputAssociation_1dbmrbq_di" bpmnElement="DataInputAssociation_1dbmrbq">
+        <di:waypoint x="585" y="108" />
+        <di:waypoint x="1111" y="239" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Association_0elmnsi_di" bpmnElement="Association_0elmnsi">
         <di:waypoint x="888" y="400" />
