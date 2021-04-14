@@ -21,6 +21,8 @@ dependencies {
     implementation 'com.atlassian.jira:jira-rest-java-client-core:5.2.2'
     implementation 'io.atlassian.fugue:fugue:4.7.2'
 
+    implementation 'org.gitlab4j:gitlab4j-api:4.16.0'
+
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
