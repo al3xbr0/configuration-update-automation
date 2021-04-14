@@ -6,20 +6,42 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.w.automation.service.JiraIntegrationService;
 
 @RestController
+@SuppressWarnings("unused")
 public class IssueRestController {
 
     @Autowired
     private RuntimeService runtimeService;
 
-    @PostMapping(value = "api/jira/create/{issueKey:[a-zA-Z]+-\\d+}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Autowired
+    private JiraIntegrationService jiraIntegrationService;
+
+    @PostMapping("api/jira/create/{issueKey:[a-zA-Z]+-\\d+}")
     public void create(@PathVariable("issueKey") String issueKey) {
-        runtimeService.createProcessInstanceById("").setVariable("issueKey", issueKey).execute();
+        if (jiraIntegrationService.addActive(issueKey)) {
+            runtimeService.createMessageCorrelation("Message_NewIssueCreated")
+                    .setVariable("issueKey", issueKey)
+                    .correlate();
+        }
     }
 
-    @PostMapping(value = "api/jira/update/{issueKey:[a-zA-Z]+-\\d+}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping("api/jira/update/{issueKey:[a-zA-Z]+-\\d+}")
     public void update(@PathVariable("issueKey") String issueKey) {
-        //TODO
+        if (jiraIntegrationService.removeWaiting(issueKey)) {
+            runtimeService.createMessageCorrelation("Message_IssueUpdated_" + issueKey)
+                    .setVariable("issueClosed", false)
+                    .correlate();
+        }
+    }
+
+    @PostMapping("api/jira/cancel/{issueKey:[a-zA-Z]+-\\d+}")
+    public void cancel(@PathVariable("issueKey") String issueKey) {
+        if (jiraIntegrationService.removeWaiting(issueKey)) {
+            runtimeService.createMessageCorrelation("Message_IssueUpdated_" + issueKey)
+                    .setVariable("issueClosed", true)
+                    .correlate();
+        }
     }
 }
