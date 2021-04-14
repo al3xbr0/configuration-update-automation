@@ -39,7 +39,7 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_07u57w5" sourceRef="StartEvent_ValidationNeeded" targetRef="Activity_CheckSchema" />
     <bpmn:sequenceFlow id="Flow_SchemaExistsNo" name="Нет" sourceRef="Gateway_SchemaExists" targetRef="Activity_ReportMissingSchema">
-      <bpmn:conditionExpression xsi:dataType="bpmn:tFormalExpression">${!validationStatus.isSchemaValid()}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!validationStatus.schemaValid}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_TableExists" name="Таблица существует?">
       <bpmn:incoming>Flow_04xx53h</bpmn:incoming>
@@ -48,18 +48,18 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_04xx53h" sourceRef="Activity_CheckTable" targetRef="Gateway_TableExists" />
     <bpmn:sequenceFlow id="Flow_TableExistsYes" name="Да" sourceRef="Gateway_TableExists" targetRef="Gateway_ColumnsSetEmpty">
-      <bpmn:conditionExpression xsi:dataType="bpmn:tFormalExpression">${validationStatus.isTableValid()}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${validationStatus.tableValid}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_TableExistsNo" name="Нет" sourceRef="Gateway_TableExists" targetRef="Activity_ReportMissingTable">
-      <bpmn:conditionExpression xsi:dataType="bpmn:tFormalExpression">${!validationStatus.isTableValid()}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!validationStatus.tableValid}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_ColumnsExistNo" name="Нет" sourceRef="Gateway_ColumnsExist" targetRef="Activity_ReportMissingColumns">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!validationStatus.getColumnsExist()}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:endEvent id="EndEvent_ValidationSucceed" name="Валидация пройдена успешно">
+    <bpmn:endEvent id="EndEvent_ValidationSucceeded" name="Валидация пройдена успешно">
       <bpmn:incoming>Flow_1i3q15z</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_1i3q15z" sourceRef="Activity_ReportSuccessfulValidation" targetRef="EndEvent_ValidationSucceed" />
+    <bpmn:sequenceFlow id="Flow_1i3q15z" sourceRef="Activity_ReportSuccessfulValidation" targetRef="EndEvent_ValidationSucceeded" />
     <bpmn:exclusiveGateway id="Gateway_19fy81g">
       <bpmn:incoming>Flow_0z7jmd3</bpmn:incoming>
       <bpmn:incoming>Flow_14fv64t</bpmn:incoming>
@@ -94,7 +94,7 @@
     <bpmn:sequenceFlow id="Flow_1s8grw9" sourceRef="Activity_CheckColumnsForDuplicates" targetRef="Gateway_DuplicatesFound" />
     <bpmn:sequenceFlow id="Flow_00xdpxf" sourceRef="Activity_CheckSchema" targetRef="Gateway_SchemaExists" />
     <bpmn:sequenceFlow id="Flow_SchemaExistsYes" name="Да" sourceRef="Gateway_SchemaExists" targetRef="Activity_CheckTable">
-      <bpmn:conditionExpression xsi:dataType="bpmn:tFormalExpression">${validationStatus.isSchemaValid()}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${validationStatus.schemaValid}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="Activity_CheckSchema" name="Проверить существование схемы в БД" camunda:asyncBefore="true" camunda:delegateExpression="${checkSchemaDelegate}">
       <bpmn:incoming>Flow_07u57w5</bpmn:incoming>
@@ -131,30 +131,30 @@
         <bpmn:targetRef>Property_045ici6</bpmn:targetRef>
       </bpmn:dataInputAssociation>
     </bpmn:serviceTask>
-    <bpmn:scriptTask id="Activity_ReportMissingTable" name="Написать: запрошенная таблица не существует" scriptFormat="java">
+    <bpmn:scriptTask id="Activity_ReportMissingTable" name="Написать: запрошенная таблица не существует" scriptFormat="javascript">
       <bpmn:incoming>Flow_TableExistsNo</bpmn:incoming>
       <bpmn:outgoing>Flow_14fv64t</bpmn:outgoing>
-      <bpmn:script>${validationStatus.appendComment("q")}</bpmn:script>
+      <bpmn:script>validationStatus.appendValidationComment("Table '" + request.tableName + "' doesn't exist in schema '" + request.schemaName + "'.")</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:scriptTask id="Activity_ReportMissingSchema" name="Написать: запрошенная схема не существует" scriptFormat="java">
+    <bpmn:scriptTask id="Activity_ReportMissingSchema" name="Написать: запрошенная схема не существует" scriptFormat="javascript">
       <bpmn:incoming>Flow_SchemaExistsNo</bpmn:incoming>
       <bpmn:outgoing>Flow_0vf6k35</bpmn:outgoing>
-      <bpmn:script>${validationStatus.appendComment("y")}</bpmn:script>
+      <bpmn:script>validationStatus.appendValidationComment("Schema '" + request.schemaName + "' doesn't exist.")</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:scriptTask id="Activity_ReportMissingColumns" name="Написать: отсутствуют колонки в таблице" scriptFormat="java">
+    <bpmn:scriptTask id="Activity_ReportMissingColumns" name="Написать: отсутствуют колонки в таблице" scriptFormat="javascript">
       <bpmn:incoming>Flow_ColumnsExistNo</bpmn:incoming>
       <bpmn:outgoing>Flow_0z7jmd3</bpmn:outgoing>
-      <bpmn:script>${validationStatus.appendValidationComment("The following columns doesn't exist in specified table:\n" + validationStatus.getPrintableInvalidColumns());}</bpmn:script>
+      <bpmn:script>validationStatus.appendValidationComment("The following columns doesn't exist in specified table:\n" + validationStatus.getPrintableInvalidColumns() + ".")</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:scriptTask id="Activity_ReportSuccessfulValidation" name="Написать: валидация пройдена">
+    <bpmn:scriptTask id="Activity_ReportSuccessfulValidation" name="Написать: валидация пройдена" scriptFormat="javascript">
       <bpmn:incoming>Flow_05fnffo</bpmn:incoming>
       <bpmn:outgoing>Flow_1i3q15z</bpmn:outgoing>
-      <bpmn:script>${validationStatus.appendValidationComment("Validation succeed.");}</bpmn:script>
+      <bpmn:script>validationStatus.appendValidationComment("Validation succeeded.")</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:scriptTask id="Activity_ReportFailedValidation" name="Написать: валидация не пройдена">
+    <bpmn:scriptTask id="Activity_ReportFailedValidation" name="Написать: валидация не пройдена" scriptFormat="javascript">
       <bpmn:incoming>Flow_18fgwek</bpmn:incoming>
       <bpmn:outgoing>Flow_1c6m6fu</bpmn:outgoing>
-      <bpmn:script>${validationStatus.appendValidationComment("Validation failed.");}</bpmn:script>
+      <bpmn:script>validationStatus.appendValidationComment("Validation failed.")</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_18fgwek" sourceRef="Gateway_19fy81g" targetRef="Activity_ReportFailedValidation" />
     <bpmn:sequenceFlow id="Flow_1c6m6fu" sourceRef="Activity_ReportFailedValidation" targetRef="EndEvent_ValidationFailed" />
@@ -165,6 +165,14 @@
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="RequestValidationProcess">
+      <bpmndi:BPMNEdge id="Flow_1c6m6fu_di" bpmnElement="Flow_1c6m6fu">
+        <di:waypoint x="1431" y="473" />
+        <di:waypoint x="1470" y="473" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18fgwek_di" bpmnElement="Flow_18fgwek">
+        <di:waypoint x="1285" y="473" />
+        <di:waypoint x="1331" y="473" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0n3j8gz_di" bpmnElement="Flow_SchemaExistsYes">
         <di:waypoint x="395" y="277" />
         <di:waypoint x="433" y="277" />
@@ -201,8 +209,8 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0vf6k35_di" bpmnElement="Flow_0vf6k35">
-        <di:waypoint x="810" y="569" />
-        <di:waypoint x="1260" y="569" />
+        <di:waypoint x="810" y="570" />
+        <di:waypoint x="1260" y="570" />
         <di:waypoint x="1260" y="498" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_14fv64t_di" bpmnElement="Flow_14fv64t">
@@ -245,8 +253,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0cuz3h9_di" bpmnElement="Flow_SchemaExistsNo">
         <di:waypoint x="370" y="302" />
-        <di:waypoint x="370" y="569" />
-        <di:waypoint x="710" y="569" />
+        <di:waypoint x="370" y="570" />
+        <di:waypoint x="710" y="570" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="379" y="312" width="20" height="14" />
         </bpmndi:BPMNLabel>
@@ -290,14 +298,6 @@
           <dc:Bounds x="912" y="310" width="13" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_18fgwek_di" bpmnElement="Flow_18fgwek">
-        <di:waypoint x="1285" y="473" />
-        <di:waypoint x="1331" y="473" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1c6m6fu_di" bpmnElement="Flow_1c6m6fu">
-        <di:waypoint x="1431" y="473" />
-        <di:waypoint x="1470" y="473" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_ValidationNeeded">
         <dc:Bounds x="150" y="259" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -337,7 +337,7 @@
           <dc:Bounds x="557" y="223" width="65" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0jv180j_di" bpmnElement="EndEvent_ValidationSucceed">
+      <bpmndi:BPMNShape id="Event_0jv180j_di" bpmnElement="EndEvent_ValidationSucceeded">
         <dc:Bounds x="1534" y="259" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1523" y="303" width="57" height="40" />
@@ -354,6 +354,12 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0bf68ei_di" bpmnElement="Gateway_0bf68ei" isMarkerVisible="true">
         <dc:Bounds x="1327" y="252" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_05m0i0b_di" bpmnElement="EndEvent_ValidationFailed">
+        <dc:Bounds x="1470" y="455" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1452" y="498" width="73" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="DataObjectReference_11h0xah_di" bpmnElement="DataObjectReference_Comment">
         <dc:Bounds x="850" y="375" width="36" height="50" />
@@ -380,10 +386,7 @@
         <dc:Bounds x="710" y="433" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1ankbf8_di" bpmnElement="Activity_ReportMissingSchema">
-        <dc:Bounds x="710" y="529" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_05rbwfk_di" bpmnElement="TextAnnotation_Comment">
-        <dc:Bounds x="966" y="502" width="270" height="40" />
+        <dc:Bounds x="710" y="530" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0rdp8vf_di" bpmnElement="Activity_ReportMissingColumns">
         <dc:Bounds x="1210" y="342" width="100" height="80" />
@@ -394,11 +397,8 @@
       <bpmndi:BPMNShape id="Activity_1euzogq_di" bpmnElement="Activity_ReportFailedValidation">
         <dc:Bounds x="1331" y="433" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_05m0i0b_di" bpmnElement="EndEvent_ValidationFailed">
-        <dc:Bounds x="1470" y="455" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1452" y="498" width="73" height="27" />
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNShape id="TextAnnotation_05rbwfk_di" bpmnElement="TextAnnotation_Comment">
+        <dc:Bounds x="966" y="502" width="270" height="40" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="DataInputAssociation_0ivf5hl_di" bpmnElement="DataInputAssociation_0ivf5hl">
         <di:waypoint x="535" y="99" />

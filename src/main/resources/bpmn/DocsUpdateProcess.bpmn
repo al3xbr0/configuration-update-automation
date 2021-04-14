@@ -10,10 +10,10 @@
       <bpmn:outgoing>Flow_PageExistsNo</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_PageExistsYes" name="Да" sourceRef="Gateway_PageExists" targetRef="Gateway_0akr066">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${pageExists == true}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:dataType="bpmn:tFormalExpression">${pageExists == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_PageExistsNo" name="Нет" sourceRef="Gateway_PageExists" targetRef="Activity_CreateNewPage">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${pageExists == false}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:dataType="bpmn:tFormalExpression">${pageExists == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_0akr066">
       <bpmn:incoming>Flow_1bxk3uf</bpmn:incoming>

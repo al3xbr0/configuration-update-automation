@@ -40,7 +40,7 @@
         </bpmn:dataInputAssociation>
       </bpmn:task>
       <bpmn:sequenceFlow id="Flow_ColumnsSetEmptyNo" name="Нет" sourceRef="Gateway_ColumnsSetEmpty" targetRef="Activity_GetColumnsMapping">
-        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${columnsProvided == false}</bpmn:conditionExpression>
+        <bpmn:conditionExpression xsi:dataType="bpmn:tFormalExpression">${columnsProvided == false}</bpmn:conditionExpression>
       </bpmn:sequenceFlow>
       <bpmn:dataStoreReference id="DataStoreReference_Postgresql" name="PostgreSQL" />
       <bpmn:exclusiveGateway id="Gateway_14ymyf1">
@@ -49,7 +49,7 @@
         <bpmn:outgoing>Flow_1jbr0pp</bpmn:outgoing>
       </bpmn:exclusiveGateway>
       <bpmn:sequenceFlow id="Flow_ColumnsSetEmptyYes" name="Да" sourceRef="Gateway_ColumnsSetEmpty" targetRef="Gateway_14ymyf1">
-        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${columnsProvided == true}</bpmn:conditionExpression>
+        <bpmn:conditionExpression xsi:dataType="bpmn:tFormalExpression">${columnsProvided == true}</bpmn:conditionExpression>
       </bpmn:sequenceFlow>
       <bpmn:sequenceFlow id="Flow_02bzgwk" sourceRef="Activity_GetColumnsMapping" targetRef="Gateway_14ymyf1" />
       <bpmn:sequenceFlow id="Flow_1jbr0pp" sourceRef="Gateway_14ymyf1" targetRef="Activity_WriteColumnsWithMapping" />
