@@ -22,7 +22,6 @@ public enum ConfigurationUpdateFieldType {
             }
         }
         return UNWANTED_FIELD;
-        //throw new IllegalArgumentException("No Field Type with name " + name);
     }
 
     ConfigurationUpdateFieldType(String fieldTypeName) {

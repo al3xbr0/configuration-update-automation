@@ -8,7 +8,11 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -16,7 +20,7 @@ import java.util.stream.StreamSupport;
 
 import static ru.w.automation.domain.ConfigurationUpdateFieldType.*;
 
-public class ConfigurationUpdateRequest {
+public class ConfigurationUpdateRequest implements Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationUpdateRequest.class);
 
@@ -31,17 +35,16 @@ public class ConfigurationUpdateRequest {
                     "(?<name>\\w+)\\s*:\\s*(?<type>(?:\\w\\s*)*\\w+(?:|\\(\\d\\)))"
             );
 
-    private final String issueKey;
+    //private final String issueKey;
     private final String schemaName;
     private final String tableName;
     private final Collection<Column> columns;
     private final int frequency;
     private final boolean createSnapshots;
-    private ValidationStatus validationStatus;
 
-    public String getIssueKey() {
+    /*public String getIssueKey() {
         return issueKey;
-    }
+    }*/
 
     public String getSchemaName() {
         return schemaName;
@@ -51,7 +54,7 @@ public class ConfigurationUpdateRequest {
         return tableName;
     }
 
-    public Iterable<Column> getColumns() {
+    public Collection<Column> getColumns() {
         return columns;
     }
 
@@ -63,12 +66,14 @@ public class ConfigurationUpdateRequest {
         return createSnapshots;
     }
 
+    @SuppressWarnings("unused")
     public boolean areColumnsSpecified() {
         return !columns.isEmpty();
     }
 
-    public ConfigurationUpdateRequest(String issueKey, String schemaName, String tableName, Collection<Column> columns, int frequency, boolean createSnapshots) {
-        this.issueKey = issueKey;
+    public ConfigurationUpdateRequest(//String issueKey,
+                                      String schemaName, String tableName, Collection<Column> columns, int frequency, boolean createSnapshots) {
+        //this.issueKey = issueKey;
         this.schemaName = schemaName;
         this.tableName = tableName;
         this.columns = columns;
@@ -82,7 +87,7 @@ public class ConfigurationUpdateRequest {
         Map<ConfigurationUpdateFieldType, Object> fields =
                 StreamSupport.stream(issue.getFields().spliterator(), false)
                         .filter(
-                                field -> fromJiraName(field.getName()) != UNWANTED_FIELD
+                                field -> fromJiraName(field.getName()) != UNWANTED_FIELD && field.getValue() != null
                         )
                         .collect(
                                 Collectors.toMap(
@@ -111,7 +116,7 @@ public class ConfigurationUpdateRequest {
 
         Collection<Column> columns = new ArrayList<>();
         String columnsFieldStr = (String) fields.get(COLUMNS);
-        if (Objects.nonNull(columnsFieldStr)) {
+        if (columnsFieldStr != null) {
             if (!COLUMNS_FIELD_CORRECT_PATTERN.matcher(columnsFieldStr).matches()) {
                 LOGGER.error("\"Set of columns\" field has incorrect format: {}", columnsFieldStr);
                 throw new IllegalArgumentException("Couldn't parse \"Set of columns\" field. Please, check it out.");
@@ -120,8 +125,8 @@ public class ConfigurationUpdateRequest {
             while (columnsItemsMatcher.find()) {
                 columns.add(
                         new Column(
-                                columnsItemsMatcher.group("name"),
-                                columnsItemsMatcher.group("type")
+                                columnsItemsMatcher.group("name").toLowerCase(),
+                                columnsItemsMatcher.group("type").toLowerCase()
                         )
                 );
             }
@@ -130,6 +135,7 @@ public class ConfigurationUpdateRequest {
             LOGGER.info("No columns to parse");
         }
 
-        return new ConfigurationUpdateRequest(issue.getKey(), schemaName, tableName, columns, frequency, createSnapshots);
+        return new ConfigurationUpdateRequest(//issue.getKey(),
+                schemaName, tableName, columns, frequency, createSnapshots);
     }
 }

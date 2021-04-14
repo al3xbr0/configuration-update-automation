@@ -1,16 +1,18 @@
 package ru.w.automation.domain;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ValidationStatus {
+//@SuppressWarnings("unused")
+public class ValidationStatus implements Serializable {
     private boolean schemaValid;
     private boolean tableValid;
     private final Set<Column> columnsDuplicates = new HashSet<>();
     private final Set<Column> invalidColumns = new HashSet<>();
 
-    private final StringBuilder validationComment = new StringBuilder();
+    private final StringBuilder validationComment = new StringBuilder("VALIDATION STATUS\n-----------------\n");
 
     public boolean isSchemaValid() {
         return schemaValid;

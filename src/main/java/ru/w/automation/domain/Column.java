@@ -1,6 +1,8 @@
 package ru.w.automation.domain;
 
-public class Column {
+import java.io.Serializable;
+
+public class Column implements Serializable {
 
     private static final String VARCHAR = "varchar";
     private static final String CHARACTER_VARYING = "character varying";
