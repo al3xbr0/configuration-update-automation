@@ -34,15 +34,44 @@ public class ProcessVariables {
         variableScope.setVariable(VAR_NAME_VALIDATION_STATUS, validationStatus);
     }
 
+    @SuppressWarnings("unchecked")
     public Collection<Column> getUniqueColumns() {
         return (Collection<Column>) variableScope.getVariable(VAR_NAME_UNIQUE_COLUMNS);
     }
 
     public void setUniqueColumns(Collection<Column> uniqueColumns) {
-        variableScope.setVariable(VAR_NAME_UNIQUE_COLUMNS, uniqueColumns);
+        variableScope.setVariableLocal(VAR_NAME_UNIQUE_COLUMNS, uniqueColumns);
     }
 
-    public void removeUniqueColumns() {
-        variableScope.removeVariable(VAR_NAME_UNIQUE_COLUMNS);
+    public String getJsonConfig() {
+        return (String) variableScope.getVariable(VAR_NAME_JSON_CONFIG);
+    }
+
+    public String getJsonConfigName() {
+        return (String) variableScope.getVariable(VAR_NAME_JSON_CONFIG_NAME);
+    }
+
+    public void setJsonConfigName(String jsonConfigName) {
+        variableScope.setVariable(VAR_NAME_JSON_CONFIG_NAME, jsonConfigName);
+    }
+
+    public String getTempBranchName() {
+        return (String) variableScope.getVariable(VAR_NAME_TEMP_BRANCH_NAME);
+    }
+
+    public void setTempBranchName(String tempBranchName) {
+        variableScope.setVariable(VAR_NAME_TEMP_BRANCH_NAME, tempBranchName);
+    }
+
+    public int getMergeRequestIid() {
+        return (int) variableScope.getVariable(VAR_NAME_MERGE_REQUEST_IID);
+    }
+
+    public void setMergeRequestIid(int mergeRequestIid) {
+        variableScope.setVariable(VAR_NAME_MERGE_REQUEST_IID, mergeRequestIid);
+    }
+
+    public void setMergedIntoMaster(boolean mergedIntoMaster) {
+        variableScope.setVariable(VAR_NAME_MERGED, mergedIntoMaster);
     }
 }
