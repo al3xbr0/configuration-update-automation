@@ -11,10 +11,6 @@ public enum ConfigurationUpdateFieldType {
 
     private final String fieldTypeName;
 
-    public String getFieldTypeName() {
-        return fieldTypeName;
-    }
-
     public static ConfigurationUpdateFieldType fromJiraName(String name) {
         for (ConfigurationUpdateFieldType type : ConfigurationUpdateFieldType.values()) {
             if (type.fieldTypeName.equalsIgnoreCase(name)) {
