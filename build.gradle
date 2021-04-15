@@ -1,11 +1,11 @@
 plugins {
-    id 'org.springframework.boot' version '2.4.4'
+    id 'org.springframework.boot' version '2.4.5'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
 }
 
 group = 'ru.w'
-version = '0.0.2-SNAPSHOT'
+version = '0.1.0'
 description = 'Automation of the business process of configuration update requests handling'
 sourceCompatibility = '11'
 
@@ -16,7 +16,7 @@ repositories {
 
 dependencies {
     implementation platform('org.springframework.boot:spring-boot-dependencies:2.3.1.RELEASE')
-    implementation platform('org.camunda.bpm:camunda-bom:7.14.0')
+    implementation platform('org.camunda.bpm:camunda-bom:7.15.0')
 
     implementation 'com.atlassian.jira:jira-rest-java-client-core:5.2.2'
     implementation 'io.atlassian.fugue:fugue:4.7.2'
@@ -28,8 +28,8 @@ dependencies {
 
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.4'
 
-    implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-rest:7.14.0'
-    implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-webapp:7.14.0'
+    implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-rest:7.15.0'
+    implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-webapp:7.15.0'
 
     runtimeOnly 'org.postgresql:postgresql'
 

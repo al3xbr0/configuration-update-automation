@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@EnableProcessApplication("Configuration Update Request Handling")
+@EnableProcessApplication("ConfigurationUpdateRequestProcess")
 public class Application {
 
     public static void main(String[] args) {
