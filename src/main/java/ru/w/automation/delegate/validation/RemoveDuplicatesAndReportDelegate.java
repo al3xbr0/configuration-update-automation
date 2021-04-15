@@ -19,11 +19,10 @@ public class RemoveDuplicatesAndReportDelegate implements JavaDelegate {
 
         columns.clear();
         columns.addAll(variables.getUniqueColumns());
-        variables.removeUniqueColumns();
 
         validationStatus.appendValidationComment(
                 "Found duplicates in \"Set of columns\" field: " + validationStatus.getPrintableColumnsDuplicates() +
-                        ".\n They will be removed."
+                        ". They have been removed from the request."
         );
     }
 }
