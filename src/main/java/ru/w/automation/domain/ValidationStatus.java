@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-//@SuppressWarnings("unused")
+@SuppressWarnings("unused")
 public class ValidationStatus implements Serializable {
     private boolean schemaValid;
     private boolean tableValid;
@@ -32,7 +32,7 @@ public class ValidationStatus implements Serializable {
 
     public String getPrintableColumnsDuplicates() {
         return columnsDuplicates.stream().map(Column::getName)
-                .collect(Collectors.joining(", "));
+                .collect(Collectors.joining("', '", "'", "'"));
     }
 
     public boolean hasColumnDuplicates() {
@@ -45,9 +45,8 @@ public class ValidationStatus implements Serializable {
 
     public String getPrintableInvalidColumns() {
         return invalidColumns.stream().map(
-                column -> column.getName() + " : " + column.getDataType()
-        )
-                .collect(Collectors.joining("\n"));
+                column -> column.getName() + " : " + column.getPrintableDataType()
+        ).collect(Collectors.joining("', '", "'", "'"));
     }
 
     public void addInvalidColumn(Column column) {
