@@ -144,7 +144,7 @@
     <bpmn:scriptTask id="Activity_ReportMissingColumns" name="Написать: отсутствуют колонки в таблице" scriptFormat="javascript">
       <bpmn:incoming>Flow_ColumnsExistNo</bpmn:incoming>
       <bpmn:outgoing>Flow_0z7jmd3</bpmn:outgoing>
-      <bpmn:script>validationStatus.appendValidationComment("The following columns doesn't exist in specified table:\n" + validationStatus.getPrintableInvalidColumns() + ".")</bpmn:script>
+      <bpmn:script>validationStatus.appendValidationComment("The following column(s) do not exist in specified table:\n" + validationStatus.printableInvalidColumns + ".")</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="Activity_ReportSuccessfulValidation" name="Написать: валидация пройдена" scriptFormat="javascript">
       <bpmn:incoming>Flow_05fnffo</bpmn:incoming>
@@ -325,12 +325,6 @@
           <dc:Bounds x="1226" y="224" width="67" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="DataStoreReference_01qz14t_di" bpmnElement="DataStoreReference_Postgresql">
-        <dc:Bounds x="535" y="87" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="529" y="144" width="61" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_19bjfr3_di" bpmnElement="Gateway_TableExists" isMarkerVisible="true">
         <dc:Bounds x="565" y="252" width="50" height="50" />
         <bpmndi:BPMNLabel>
@@ -400,17 +394,23 @@
       <bpmndi:BPMNShape id="TextAnnotation_05rbwfk_di" bpmnElement="TextAnnotation_Comment">
         <dc:Bounds x="966" y="502" width="270" height="40" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataStoreReference_01qz14t_di" bpmnElement="DataStoreReference_Postgresql">
+        <dc:Bounds x="585" y="65" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="579" y="122" width="61" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="DataInputAssociation_0ivf5hl_di" bpmnElement="DataInputAssociation_0ivf5hl">
-        <di:waypoint x="535" y="99" />
+        <di:waypoint x="585" y="76" />
         <di:waypoint x="313" y="238" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="DataInputAssociation_1yb00ms_di" bpmnElement="DataInputAssociation_1yb00ms">
-        <di:waypoint x="530" y="112" />
-        <di:waypoint x="485" y="237" />
+        <di:waypoint x="585" y="98" />
+        <di:waypoint x="496" y="237" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="DataInputAssociation_1dbmrbq_di" bpmnElement="DataInputAssociation_1dbmrbq">
-        <di:waypoint x="585" y="108" />
-        <di:waypoint x="1111" y="239" />
+        <di:waypoint x="635" y="88" />
+        <di:waypoint x="1109" y="240" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Association_0elmnsi_di" bpmnElement="Association_0elmnsi">
         <di:waypoint x="888" y="400" />
