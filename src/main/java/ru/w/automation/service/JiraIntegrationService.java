@@ -1,32 +1,24 @@
 package ru.w.automation.service;
 
 import com.atlassian.jira.rest.client.api.IssueRestClient;
-import com.atlassian.jira.rest.client.api.MetadataRestClient;
 import com.atlassian.jira.rest.client.api.domain.Comment;
 import com.atlassian.jira.rest.client.api.domain.Issue;
+import com.atlassian.jira.rest.client.api.domain.Transition;
+import com.atlassian.jira.rest.client.api.domain.input.TransitionInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.stream.StreamSupport;
 
 @Service
 public class JiraIntegrationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JiraIntegrationService.class);
 
-//    @Autowired
-//    private JiraRestClient jiraRestClient;
-
     @Autowired
     private IssueRestClient issueRestClient;
-    @Autowired
-    private MetadataRestClient metadataRestClient;
-
-    private final Set<String> issuesActive = new HashSet<>();
-    private final Set<String> issuesWaiting = new HashSet<>();
 
     public void addComment(String issueKey, String commentText) {
         Issue issue = getIssue(issueKey);
@@ -41,19 +33,19 @@ public class JiraIntegrationService {
         return issue;
     }
 
-    public boolean addActive(String issueKey) {
-        return issuesActive.add(issueKey);
-    }
+    public void closeIssue(String issueKey) {
+        LOGGER.info("Closing issue {}", issueKey);
+        Issue issue = getIssue(issueKey);
+        issueRestClient.getTransitions(issue).claim().iterator();
+        Transition transition =
+                StreamSupport.stream(issueRestClient.getTransitions(issue).claim().spliterator(), false)
+                        .filter(
+                                t -> "done".equalsIgnoreCase(t.getName())
+                                        || "closed".equalsIgnoreCase(t.getName())
+                                        || "resolved".equalsIgnoreCase(t.getName())
+                        ).findFirst()
+                        .orElseThrow(() -> new UnsupportedOperationException("Couldn't get transition for closing the issue"));
 
-    public boolean removeActive(String issueKey) {
-        return issuesActive.remove(issueKey);
-    }
-
-    public void addWaiting(String issueKey) {
-        issuesWaiting.add(issueKey);
-    }
-
-    public boolean removeWaiting(String issueKey) {
-        return issuesWaiting.remove(issueKey);
+        issueRestClient.transition(issue, new TransitionInput(transition.getId())).claim();
     }
 }
