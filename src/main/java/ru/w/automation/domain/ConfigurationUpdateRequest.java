@@ -3,16 +3,17 @@ package ru.w.automation.domain;
 
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.IssueField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.camunda.bpm.engine.delegate.BpmnError;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -28,23 +29,33 @@ public class ConfigurationUpdateRequest implements Serializable {
 
     private static final Pattern COLUMNS_FIELD_CORRECT_PATTERN =
             Pattern.compile(
-                    "^\\s*(?:\\w+\\s*:\\s*(?:\\w\\s*)*\\w+(?:|\\(\\d\\))(?:\\s*,\\s*(?!$)|\\s*$))+$"
+                    "^\\s*(?:\\w+\\s*:\\s*(?:\\w\\s*)*\\w+(?:|\\(\\d+\\))(?:\\s*,\\s*(?!$)|\\s*$))+$"
             );
     private static final Pattern COLUMNS_ITEMS_PATTERN =
             Pattern.compile(
-                    "(?<name>\\w+)\\s*:\\s*(?<type>(?:\\w\\s*)*\\w+(?:|\\(\\d\\)))"
+                    "(?<name>\\w+)\\s*:\\s*(?<type>(?:\\w\\s*)*\\w+)(?:\\((?<length>\\d+)\\))?"
             );
 
-    //private final String issueKey;
+    @JsonIgnore
+    private final String issueSummary;
+    @JsonIgnore
+    private final String issueReporter;
+
+
     private final String schemaName;
     private final String tableName;
-    private final Collection<Column> columns;
     private final int frequency;
     private final boolean createSnapshots;
+    private final Collection<Column> columns;
 
-    /*public String getIssueKey() {
-        return issueKey;
-    }*/
+    public String getSummary() {
+        return issueSummary;
+    }
+
+    public String getReporterName() {
+        return issueReporter;
+    }
+
 
     public String getSchemaName() {
         return schemaName;
@@ -71,9 +82,11 @@ public class ConfigurationUpdateRequest implements Serializable {
         return !columns.isEmpty();
     }
 
-    public ConfigurationUpdateRequest(//String issueKey,
-                                      String schemaName, String tableName, Collection<Column> columns, int frequency, boolean createSnapshots) {
-        //this.issueKey = issueKey;
+    public ConfigurationUpdateRequest(String issueSummary, String issueReporter,
+                                      String schemaName, String tableName,
+                                      Collection<Column> columns, int frequency, boolean createSnapshots) {
+        this.issueSummary = issueSummary;
+        this.issueReporter = issueReporter;
         this.schemaName = schemaName;
         this.tableName = tableName;
         this.columns = columns;
@@ -96,7 +109,7 @@ public class ConfigurationUpdateRequest implements Serializable {
                                 )
                         );
         if (!fields.keySet().containsAll(REQUIRED_FIELDS)) {
-            LOGGER.error("Some required fields are missing in issue {}", issue.getKey());
+            LOGGER.error("Some required fields are missing in the issue");
             throw new IllegalArgumentException("Some of required fields are not provided");
         }
 
@@ -111,31 +124,48 @@ public class ConfigurationUpdateRequest implements Serializable {
                             ((JSONObject) fields.get(CREATE_SNAPSHOTS)).getString("value")
                     );
         } catch (JSONException e) {
-            LOGGER.error("Something wrong with \"Extraction type\" field. Check your Jira Custom Fields settings", e);
+            LOGGER.warn("Something wrong with \"Extraction type\" field. Check your Jira Custom Fields settings. Default value (false) has been assigned", e);
         }
 
         Collection<Column> columns = new ArrayList<>();
         String columnsFieldStr = (String) fields.get(COLUMNS);
-        if (columnsFieldStr != null) {
-            if (!COLUMNS_FIELD_CORRECT_PATTERN.matcher(columnsFieldStr).matches()) {
-                LOGGER.error("\"Set of columns\" field has incorrect format: {}", columnsFieldStr);
-                throw new IllegalArgumentException("Couldn't parse \"Set of columns\" field. Please, check it out.");
+        try {
+            if (columnsFieldStr != null) {
+                if (!COLUMNS_FIELD_CORRECT_PATTERN.matcher(columnsFieldStr).matches()) {
+                    throw new IllegalArgumentException("\"Set of columns\" field doesn't match ");
+                }
+                Matcher columnsItemsMatcher = COLUMNS_ITEMS_PATTERN.matcher(columnsFieldStr);
+                while (columnsItemsMatcher.find()) {
+                    columns.add(
+                            new Column(
+                                    columnsItemsMatcher.group("name").toLowerCase(),
+                                    columnsItemsMatcher.group("type").toLowerCase(),
+                                    Integer.valueOf(columnsItemsMatcher.group("length"))
+                            )
+                    );
+                }
+                LOGGER.info("\"Set of columns\" field parsed successfully");
+            } else {
+                LOGGER.info("No columns to parse");
             }
-            Matcher columnsItemsMatcher = COLUMNS_ITEMS_PATTERN.matcher(columnsFieldStr);
-            while (columnsItemsMatcher.find()) {
-                columns.add(
-                        new Column(
-                                columnsItemsMatcher.group("name").toLowerCase(),
-                                columnsItemsMatcher.group("type").toLowerCase()
-                        )
-                );
-            }
-            LOGGER.info("\"Set of columns\" field parsed successfully");
-        } else {
-            LOGGER.info("No columns to parse");
+        } catch (IllegalArgumentException e) {
+            LOGGER.warn("Couldn't parse \"Set of columns\" field due to incorrect format", e);
         }
 
-        return new ConfigurationUpdateRequest(//issue.getKey(),
+        return new ConfigurationUpdateRequest(issue.getSummary(),
+                Objects.requireNonNull(issue.getReporter()).getDisplayName(),
                 schemaName, tableName, columns, frequency, createSnapshots);
+    }
+
+    @SuppressWarnings("unused")
+    public String serializeConfigToJSON() {
+        LOGGER.info(issueSummary);
+        LOGGER.info(getReporterName());
+        LOGGER.info("Converting request to JSON");
+        try {
+            return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            throw new BpmnError("Couldn't convert to JSON", e);
+        }
     }
 }

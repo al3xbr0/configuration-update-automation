@@ -1,6 +1,10 @@
 package ru.w.automation.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
+import java.util.Objects;
 
 public class Column implements Serializable {
 
@@ -15,8 +19,10 @@ public class Column implements Serializable {
         return name;
     }
 
-    public String getDataType() {
-        return dataType + (charMaxLen != null ? "(" + charMaxLen.toString() + ")" : "");
+    @JsonProperty("dataType")
+    public String getPrintableDataType() {
+        return charMaxLen != null ?
+                String.format("%s(%d)", dataType, charMaxLen) : dataType;
     }
 
     public Column(String name, String dataType, Integer charMaxLen) {
@@ -29,6 +35,7 @@ public class Column implements Serializable {
         this(name, dataType, null);
     }
 
+    @JsonIgnore
     public boolean isVarchar() {
         return VARCHAR.equals(dataType);
     }
@@ -41,12 +48,6 @@ public class Column implements Serializable {
     }
 
     @Override
-    public String toString() {
-        return "\"" + name + "\"" + ":" +
-                "\"" + dataType + "\"" + "\n";
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -54,13 +55,15 @@ public class Column implements Serializable {
         Column column = (Column) o;
 
         if (!name.equals(column.name)) return false;
-        return getDataType().equals(column.getDataType());
+        if (!dataType.equals(column.dataType)) return false;
+        return Objects.equals(charMaxLen, column.charMaxLen);
     }
 
     @Override
     public int hashCode() {
         int result = name.hashCode();
-        result = 31 * result + getDataType().hashCode();
+        result = 31 * result + dataType.hashCode();
+        result = 31 * result + (charMaxLen != null ? charMaxLen.hashCode() : 0);
         return result;
     }
 }
