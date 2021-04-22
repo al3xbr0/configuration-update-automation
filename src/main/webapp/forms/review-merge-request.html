@@ -1,0 +1,14 @@
+<form role="form">
+    <script cam-script type="text/form-script">
+        camForm.on('form-loaded', function() {
+            camForm.variableManager.fetchVariable('mergeRequestWebUrl');
+        });
+        camForm.on('variables-fetched', function() {
+            $scope.mergeRequestWebUrl = camForm.variableManager.variableValue('mergeRequestWebUrl');
+        });
+    </script>
+
+    <label for="mergeRequestUrl">Созданный merge request:</label>
+    <a id="mergeRequestUrl" ng-href="{{mergeRequestWebUrl}}" target="_blank">{{mergeRequestWebUrl}}</a>
+    <p>Нажмите "Complete" по окончании рассмотрения.</p>
+</form>
