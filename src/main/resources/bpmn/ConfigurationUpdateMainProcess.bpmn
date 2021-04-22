@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_0agmqlu" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.6.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_0agmqlu" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0">
   <bpmn:process id="ConfigurationUpdateMainProcess" name="Выполнение заявки на обновление конфигурации" isExecutable="true">
     <bpmn:startEvent id="StartEvent_NewIssueCreated" name="В Jira поступила заявка типа&#10;&#34;Запрос на обновление конфигурации&#34;">
       <bpmn:outgoing>Flow_0wpjrd3</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0ncij6r" messageRef="Message_0ca47hy" />
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="Flow_01dv498" sourceRef="Activity_SubscribeForUpdates" targetRef="IntermediateEvent_IssueUpdated" />
-    <bpmn:exclusiveGateway id="Gateway_IssueStatus" name="Статус&#10;заявки?" default="Flow_0g3kl2i">
+    <bpmn:exclusiveGateway id="Gateway_IssueStatus" name="Статус&#10;заявки" default="Flow_0g3kl2i">
       <bpmn:incoming>Flow_1q2danz</bpmn:incoming>
       <bpmn:outgoing>Flow_IssueStatusClosed</bpmn:outgoing>
       <bpmn:outgoing>Flow_0g3kl2i</bpmn:outgoing>
@@ -41,25 +41,23 @@
         <camunda:in source="issueKey" target="issueKey" />
         <camunda:out source="request" target="request" />
         <camunda:out source="mergeRequestIid" target="mergeRequestIid" />
+        <camunda:out source="mergeRequestWebUrl" target="mergeRequestWebUrl" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_ValidationSucceedYes</bpmn:incoming>
-      <bpmn:outgoing>Flow_0icc7jh</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0twira1</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:sequenceFlow id="Flow_0icc7jh" sourceRef="Activity_ExecuteRequest" targetRef="Activity_ReviewMergeRequest" />
-    <bpmn:exclusiveGateway id="Gateway_MergedToMaster" name="Ветка слита с master?">
+    <bpmn:exclusiveGateway id="Gateway_MergedToMaster" default="Flow_1wsk2xw">
       <bpmn:incoming>Flow_0raizxf</bpmn:incoming>
-      <bpmn:outgoing>Flow_MergedToMasterYes</bpmn:outgoing>
-      <bpmn:outgoing>Flow_MergedToMasterNo</bpmn:outgoing>
+      <bpmn:outgoing>Flow_MergeRequestMerged</bpmn:outgoing>
+      <bpmn:outgoing>Flow_MergeRequestOpen</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1wsk2xw</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_MergedToMasterYes" name="Да" sourceRef="Gateway_MergedToMaster" targetRef="Activity_CallReleaseTask">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${mergedIntoMaster}</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_MergeRequestMerged" name="Изменения слиты" sourceRef="Gateway_MergedToMaster" targetRef="Activity_CallReleaseTask">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${mergeRequestMerged}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:endEvent id="EndEvent_ConfigurationRejected" name="Обновленная конфигурация отклонена">
-      <bpmn:incoming>Flow_MergedToMasterNo</bpmn:incoming>
+      <bpmn:incoming>Flow_1wsk2xw</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_MergedToMasterNo" name="Нет" sourceRef="Gateway_MergedToMaster" targetRef="EndEvent_ConfigurationRejected">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!mergedToMaster}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_11k535w" sourceRef="IntermediateEvent_DeployCommentReceived" targetRef="Activity_CloseIssue" />
     <bpmn:endEvent id="EndEvent_RequestCompleted" name="Запрос&#10;выполнен">
       <bpmn:incoming>Flow_1k48j7m</bpmn:incoming>
@@ -70,8 +68,8 @@
       <bpmn:outgoing>Flow_1q2danz</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_09dao9x" messageRef="Message_1wqhfk0" />
     </bpmn:intermediateCatchEvent>
-    <bpmn:userTask id="Activity_ReviewMergeRequest" name="Рассмотреть merge request">
-      <bpmn:incoming>Flow_0icc7jh</bpmn:incoming>
+    <bpmn:userTask id="Activity_ReviewMergeRequest" name="Рассмотреть merge request" camunda:formKey="embedded:app:forms/review-merge-request.html" camunda:assignee="${request.getReporterName().toLowerCase()}">
+      <bpmn:incoming>Flow_0kftt9u</bpmn:incoming>
       <bpmn:outgoing>Flow_18swqxq</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:intermediateCatchEvent id="IntermediateEvent_DeployCommentReceived" name="К заявке поступил комментарий&#10;о деплое">
@@ -132,7 +130,7 @@
       <bpmn:outgoing>Flow_0raizxf</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="Activity_CallReleaseTask" name="Вызвать задачу Release в Jenkins" camunda:asyncBefore="true" camunda:delegateExpression="${callReleaseTaskDelegate}">
-      <bpmn:incoming>Flow_MergedToMasterYes</bpmn:incoming>
+      <bpmn:incoming>Flow_MergeRequestMerged</bpmn:incoming>
       <bpmn:outgoing>Flow_1maqesc</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="Activity_CloseIssue" name="Закрыть заявку" camunda:asyncBefore="true" camunda:delegateExpression="${closeIssueDelegate}">
@@ -140,23 +138,56 @@
       <bpmn:outgoing>Flow_1k48j7m</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_1maqesc" sourceRef="Activity_CallReleaseTask" targetRef="IntermediateEvent_DeployCommentReceived" />
+    <bpmn:exclusiveGateway id="Gateway_0iw0l5w">
+      <bpmn:incoming>Flow_0twira1</bpmn:incoming>
+      <bpmn:incoming>Flow_MergeRequestOpen</bpmn:incoming>
+      <bpmn:outgoing>Flow_0kftt9u</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0twira1" sourceRef="Activity_ExecuteRequest" targetRef="Gateway_0iw0l5w" />
+    <bpmn:sequenceFlow id="Flow_0kftt9u" sourceRef="Gateway_0iw0l5w" targetRef="Activity_ReviewMergeRequest" />
+    <bpmn:sequenceFlow id="Flow_MergeRequestOpen" name="Merge request&#10;не закрыт" sourceRef="Gateway_MergedToMaster" targetRef="Gateway_0iw0l5w">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${mergeRequestOpen}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1wsk2xw" sourceRef="Gateway_MergedToMaster" targetRef="EndEvent_ConfigurationRejected" />
   </bpmn:process>
   <bpmn:message id="Message_1wqhfk0" name="Message_IssueUpdated_${issueKey}" />
   <bpmn:message id="Message_0ca47hy" name="Message_NewIssueCreated" />
   <bpmn:message id="Message_02997m3" name="Message_ConfigDeployed_${issueKey}" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="ConfigurationUpdateMainProcess">
+      <bpmndi:BPMNEdge id="Flow_1wsk2xw_di" bpmnElement="Flow_1wsk2xw">
+        <di:waypoint x="1296" y="285" />
+        <di:waypoint x="1296" y="343" />
+        <di:waypoint x="1342" y="343" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0s82y6i_di" bpmnElement="Flow_MergeRequestOpen">
+        <di:waypoint x="1296" y="235" />
+        <di:waypoint x="1296" y="160" />
+        <di:waypoint x="980" y="160" />
+        <di:waypoint x="980" y="235" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1220" y="172" width="72" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0kftt9u_di" bpmnElement="Flow_0kftt9u">
+        <di:waypoint x="1005" y="260" />
+        <di:waypoint x="1024" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0twira1_di" bpmnElement="Flow_0twira1">
+        <di:waypoint x="934" y="260" />
+        <di:waypoint x="955" y="260" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1maqesc_di" bpmnElement="Flow_1maqesc">
-        <di:waypoint x="1421" y="260" />
-        <di:waypoint x="1451" y="260" />
+        <di:waypoint x="1490" y="260" />
+        <di:waypoint x="1517" y="260" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0raizxf_di" bpmnElement="Flow_0raizxf">
-        <di:waypoint x="1203" y="260" />
-        <di:waypoint x="1232" y="260" />
+        <di:waypoint x="1247" y="260" />
+        <di:waypoint x="1271" y="260" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_18swqxq_di" bpmnElement="Flow_18swqxq">
-        <di:waypoint x="1077" y="260" />
-        <di:waypoint x="1103" y="260" />
+        <di:waypoint x="1124" y="260" />
+        <di:waypoint x="1147" y="260" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_08m4mbt_di" bpmnElement="Flow_08m4mbt">
         <di:waypoint x="464" y="260" />
@@ -164,7 +195,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0d9897l_di" bpmnElement="Flow_0d9897l">
         <di:waypoint x="596" y="260" />
-        <di:waypoint x="632" y="260" />
+        <di:waypoint x="624" y="260" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0g3kl2i_di" bpmnElement="Flow_0g3kl2i">
         <di:waypoint x="310" y="367" />
@@ -179,56 +210,44 @@
         <di:waypoint x="285" y="260" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1k48j7m_di" bpmnElement="Flow_1k48j7m">
-        <di:waypoint x="1618" y="260" />
-        <di:waypoint x="1662" y="260" />
+        <di:waypoint x="1682" y="260" />
+        <di:waypoint x="1714" y="260" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_11k535w_di" bpmnElement="Flow_11k535w">
-        <di:waypoint x="1487" y="260" />
-        <di:waypoint x="1518" y="260" />
+        <di:waypoint x="1553" y="260" />
+        <di:waypoint x="1582" y="260" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0v2b7ss_di" bpmnElement="Flow_MergedToMasterNo">
-        <di:waypoint x="1257" y="285" />
-        <di:waypoint x="1257" y="343" />
-        <di:waypoint x="1309" y="343" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1264" y="305" width="20" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_18d94lt_di" bpmnElement="Flow_MergedToMasterYes">
-        <di:waypoint x="1282" y="260" />
+      <bpmndi:BPMNEdge id="Flow_18d94lt_di" bpmnElement="Flow_MergeRequestMerged">
         <di:waypoint x="1321" y="260" />
+        <di:waypoint x="1390" y="260" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1289" y="235" width="13" height="14" />
+          <dc:Bounds x="1321" y="226" width="58" height="27" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0icc7jh_di" bpmnElement="Flow_0icc7jh">
-        <di:waypoint x="948" y="260" />
-        <di:waypoint x="977" y="260" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0r8lgle_di" bpmnElement="Flow_ValidationSucceedYes">
-        <di:waypoint x="815" y="260" />
-        <di:waypoint x="848" y="260" />
+        <di:waypoint x="801" y="260" />
+        <di:waypoint x="834" y="260" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="820" y="233" width="13" height="14" />
+          <dc:Bounds x="806" y="233" width="13" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1bhbwi3_di" bpmnElement="Flow_ValidationSucceedNo">
-        <di:waypoint x="790" y="285" />
-        <di:waypoint x="790" y="392" />
+        <di:waypoint x="776" y="285" />
+        <di:waypoint x="776" y="392" />
         <di:waypoint x="632" y="392" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="763" y="305" width="20" height="14" />
+          <dc:Bounds x="749" y="305" width="20" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0ihd4pc_di" bpmnElement="Flow_0ihd4pc">
-        <di:waypoint x="732" y="260" />
-        <di:waypoint x="765" y="260" />
+        <di:waypoint x="724" y="260" />
+        <di:waypoint x="751" y="260" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0dn1pxz_di" bpmnElement="Flow_IssueStatusClosed">
         <di:waypoint x="310" y="417" />
         <di:waypoint x="310" y="470" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="319" y="424" width="42" height="27" />
+          <dc:Bounds x="318" y="424" width="42" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1q2danz_di" bpmnElement="Flow_1q2danz">
@@ -248,7 +267,7 @@
       <bpmndi:BPMNShape id="Gateway_0fex0kv_di" bpmnElement="Gateway_IssueStatus" isMarkerVisible="true">
         <dc:Bounds x="285" y="367" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="239" y="378" width="41" height="27" />
+          <dc:Bounds x="244" y="378" width="36" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1x8kolz_di" bpmnElement="EndEvent_RequestCanceled">
@@ -264,30 +283,36 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="DataObjectReference_0t7bcgf_di" bpmnElement="DataObjectReference_Comment">
-        <dc:Bounds x="598" y="99" width="36" height="50" />
+        <dc:Bounds x="594" y="99" width="36" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="581" y="153" width="70" height="14" />
+          <dc:Bounds x="577" y="153" width="70" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1p0vzth_di" bpmnElement="Gateway_ValidationSucceeded" isMarkerVisible="true">
-        <dc:Bounds x="765" y="235" width="50" height="50" />
+        <dc:Bounds x="751" y="235" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="761" y="190" width="57" height="40" />
+          <dc:Bounds x="747" y="190" width="57" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1ypowqg_di" bpmnElement="Activity_ExecuteRequest">
-        <dc:Bounds x="848" y="220" width="100" height="80" />
+        <dc:Bounds x="834" y="220" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0quizgp_di" bpmnElement="Gateway_MergedToMaster" isMarkerVisible="true">
-        <dc:Bounds x="1232" y="235" width="50" height="50" />
+        <dc:Bounds x="1271" y="235" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1221" y="206" width="71" height="27" />
+          <dc:Bounds x="1318" y="228" width="58" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1vv1e9f_di" bpmnElement="EndEvent_ConfigurationRejected">
-        <dc:Bounds x="1309" y="325" width="36" height="36" />
+        <dc:Bounds x="1342" y="325" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1290" y="371" width="73" height="40" />
+          <dc:Bounds x="1323" y="371" width="73" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_19vrz3d_di" bpmnElement="EndEvent_RequestCompleted">
+        <dc:Bounds x="1714" y="242" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1707" y="285" width="51" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0j54rvp_di" bpmnElement="IntermediateEvent_IssueUpdated">
@@ -297,13 +322,19 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_18ud321_di" bpmnElement="Activity_ReviewMergeRequest">
-        <dc:Bounds x="977" y="220" width="100" height="80" />
+        <dc:Bounds x="1024" y="220" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_19j58c0_di" bpmnElement="IntermediateEvent_DeployCommentReceived">
+        <dc:Bounds x="1517" y="242" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1501" y="283" width="68" height="53" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1jblyys_di" bpmnElement="Activity_BuildRequest">
         <dc:Bounds x="364" y="220" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1lni1qf_di" bpmnElement="Activity_SendComment">
-        <dc:Bounds x="632" y="220" width="100" height="80" />
+        <dc:Bounds x="624" y="220" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_10ztwsk_di" bpmnElement="Gateway_10ztwsk" isMarkerVisible="true">
         <dc:Bounds x="285" y="235" width="50" height="50" />
@@ -315,25 +346,16 @@
         <dc:Bounds x="496" y="220" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_17jdyb5_di" bpmnElement="Activity_GetMergeRequestState">
-        <dc:Bounds x="1103" y="220" width="100" height="80" />
+        <dc:Bounds x="1147" y="220" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1dj94se_di" bpmnElement="Activity_CallReleaseTask">
-        <dc:Bounds x="1321" y="220" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_19vrz3d_di" bpmnElement="EndEvent_RequestCompleted">
-        <dc:Bounds x="1662" y="242" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1655" y="285" width="51" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_19j58c0_di" bpmnElement="IntermediateEvent_DeployCommentReceived">
-        <dc:Bounds x="1451" y="242" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1435" y="283" width="68" height="53" />
-        </bpmndi:BPMNLabel>
+        <dc:Bounds x="1390" y="220" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_16otmef_di" bpmnElement="Activity_CloseIssue">
-        <dc:Bounds x="1518" y="220" width="100" height="80" />
+        <dc:Bounds x="1582" y="220" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0iw0l5w_di" bpmnElement="Gateway_0iw0l5w" isMarkerVisible="true">
+        <dc:Bounds x="955" y="235" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="DataOutputAssociation_13eukre_di" bpmnElement="DataOutputAssociation_13eukre">
         <di:waypoint x="414" y="220" />
@@ -341,9 +363,9 @@
         <di:waypoint x="452" y="124" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="DataInputAssociation_11hnkyv_di" bpmnElement="DataInputAssociation_11hnkyv">
-        <di:waypoint x="634" y="124" />
-        <di:waypoint x="670" y="124" />
-        <di:waypoint x="670" y="220" />
+        <di:waypoint x="630" y="124" />
+        <di:waypoint x="662" y="124" />
+        <di:waypoint x="662" y="220" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="DataInputAssociation_1f1gb68_di" bpmnElement="DataInputAssociation_1f1gb68">
         <di:waypoint x="488" y="124" />
@@ -353,7 +375,7 @@
       <bpmndi:BPMNEdge id="DataOutputAssociation_1p6y94x_di" bpmnElement="DataOutputAssociation_1p6y94x">
         <di:waypoint x="560" y="220" />
         <di:waypoint x="560" y="124" />
-        <di:waypoint x="598" y="124" />
+        <di:waypoint x="594" y="124" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
