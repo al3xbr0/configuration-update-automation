@@ -5,7 +5,7 @@ public enum ConfigurationUpdateFieldType {
     TABLE("Table name"),
     COLUMNS("Set of columns"),
     FREQUENCY("Frequency"),
-    CREATE_SNAPSHOTS("Extraction type"),
+    CREATE_SNAPSHOTS("Create snapshots"),
 
     UNWANTED_FIELD("");
 
