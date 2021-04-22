@@ -15,7 +15,6 @@ public class CloseIssueDelegate implements JavaDelegate {
 
     @Override
     public void execute(DelegateExecution execution) {
-        ProcessVariables variables = new ProcessVariables(execution);
-        jiraIntegrationService.closeIssue(variables.getIssueKey());
+        jiraIntegrationService.setIssueClosed(new ProcessVariables(execution).getIssueKey());
     }
 }

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -27,25 +28,41 @@ public class JiraIntegrationService {
     }
 
     public Issue getIssue(String issueKey) {
-        LOGGER.info("Looking for issue {}", issueKey);
-        Issue issue = issueRestClient.getIssue(issueKey).claim();
-        LOGGER.info("Issue {} found", issueKey);
-        return issue;
+        return issueRestClient.getIssue(issueKey).claim();
     }
 
-    public void closeIssue(String issueKey) {
-        LOGGER.info("Closing issue {}", issueKey);
+    public void setIssueToDo(String issueKey) {
+        LOGGER.info("Setting \"To Do\" status for issue {}", issueKey);
         Issue issue = getIssue(issueKey);
+        issueRestClient.transition(issue, mapTransition(issue, List.of("to do", "open", "reopened"))).claim();
+    }
+
+    public void setIssueInProgress(String issueKey) {
+        LOGGER.info("Setting \"In Progress\" status for issue {}", issueKey);
+        Issue issue = getIssue(issueKey);
+        issueRestClient.transition(issue, mapTransition(issue, List.of("in progress"))).claim();
+    }
+
+    public void setIssueInReview(String issueKey) {
+        LOGGER.info("Setting \"In Review\" status for issue {}", issueKey);
+        Issue issue = getIssue(issueKey);
+        issueRestClient.transition(issue, mapTransition(issue, List.of("in review"))).claim();
+    }
+
+    public void setIssueClosed(String issueKey) {
+        LOGGER.info("Setting \"Done\" status for issue {}", issueKey);
+        Issue issue = getIssue(issueKey);
+        issueRestClient.transition(issue, mapTransition(issue, List.of("done", "closed", "resolved"))).claim();
+    }
+
+    private TransitionInput mapTransition(Issue issue, List<String> transitions) {
         issueRestClient.getTransitions(issue).claim().iterator();
         Transition transition =
                 StreamSupport.stream(issueRestClient.getTransitions(issue).claim().spliterator(), false)
                         .filter(
-                                t -> "done".equalsIgnoreCase(t.getName())
-                                        || "closed".equalsIgnoreCase(t.getName())
-                                        || "resolved".equalsIgnoreCase(t.getName())
+                                t -> transitions.contains(t.getName().toLowerCase())
                         ).findFirst()
-                        .orElseThrow(() -> new UnsupportedOperationException("Couldn't get transition for closing the issue"));
-
-        issueRestClient.transition(issue, new TransitionInput(transition.getId())).claim();
+                        .orElseThrow(() -> new UnsupportedOperationException("Couldn't get transition"));
+        return new TransitionInput(transition.getId());
     }
 }

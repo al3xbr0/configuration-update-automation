@@ -19,6 +19,8 @@ public class BuildRequestDelegate implements JavaDelegate {
     public void execute(DelegateExecution execution) {
         ProcessVariables variables = new ProcessVariables(execution);
         String issueKey = variables.getIssueKey();
+
+        jiraIntegrationService.setIssueInProgress(issueKey);
         ConfigurationUpdateRequest request = ConfigurationUpdateRequest.of(jiraIntegrationService.getIssue(issueKey));
 
         variables.setRequest(request);

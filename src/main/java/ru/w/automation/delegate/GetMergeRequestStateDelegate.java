@@ -17,7 +17,12 @@ public class GetMergeRequestStateDelegate implements JavaDelegate {
     @Override
     public void execute(DelegateExecution execution) throws GitLabApiException {
         ProcessVariables variables = new ProcessVariables(execution);
-        boolean mergedIntoMaster = gitLabIntegrationService.checkIfMerged(variables.getMergeRequestIid());
-        variables.setMergedIntoMaster(mergedIntoMaster);
+        int iid = variables.getMergeRequestIid();
+
+        boolean merged = gitLabIntegrationService.checkIfMerged(iid);
+        if (!merged) {
+            variables.setMergeRequestOpen(gitLabIntegrationService.checkIfOpen(iid));
+        }
+        variables.setMergeRequestMerged(merged);
     }
 }
