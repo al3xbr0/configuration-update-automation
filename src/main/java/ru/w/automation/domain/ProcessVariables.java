@@ -43,6 +43,7 @@ public class ProcessVariables {
         variableScope.setVariableLocal(VAR_NAME_UNIQUE_COLUMNS, uniqueColumns);
     }
 
+
     public String getJsonConfig() {
         return (String) variableScope.getVariable(VAR_NAME_JSON_CONFIG);
     }
@@ -63,6 +64,7 @@ public class ProcessVariables {
         variableScope.setVariable(VAR_NAME_TEMP_BRANCH_NAME, tempBranchName);
     }
 
+
     public int getMergeRequestIid() {
         return (int) variableScope.getVariable(VAR_NAME_MERGE_REQUEST_IID);
     }
@@ -71,7 +73,15 @@ public class ProcessVariables {
         variableScope.setVariable(VAR_NAME_MERGE_REQUEST_IID, mergeRequestIid);
     }
 
-    public void setMergedIntoMaster(boolean mergedIntoMaster) {
-        variableScope.setVariable(VAR_NAME_MERGED, mergedIntoMaster);
+    public void setMergeRequestWebUrl(String mergeRequestWebUrl) {
+        variableScope.setVariable(VAR_NAME_MERGE_REQUEST_WEB_URL, mergeRequestWebUrl);
+    }
+
+    public void setMergeRequestMerged(boolean mergeRequestMerged) {
+        variableScope.setVariable(VAR_NAME_MERGE_REQUEST_MERGED, mergeRequestMerged);
+    }
+
+    public void setMergeRequestOpen(boolean mergeRequestOpen) {
+        variableScope.setVariable(VAR_NAME_MERGE_REQUEST_OPEN, mergeRequestOpen);
     }
 }
