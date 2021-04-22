@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'ru.w'
-version = '0.1.0'
+version = '0.1.1'
 description = 'Automation of the business process of configuration update requests handling'
 sourceCompatibility = '11'
 
@@ -34,8 +34,6 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 }
 
 test {

@@ -6,7 +6,6 @@ import com.atlassian.jira.rest.client.api.domain.IssueField;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.camunda.bpm.engine.delegate.BpmnError;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
@@ -36,11 +35,9 @@ public class ConfigurationUpdateRequest implements Serializable {
                     "(?<name>\\w+)\\s*:\\s*(?<type>(?:\\w\\s*)*\\w+)(?:\\((?<length>\\d+)\\))?"
             );
 
-    @JsonIgnore
-    private final String issueSummary;
-    @JsonIgnore
-    private final String issueReporter;
 
+    private final String issueSummary;
+    private final String issueReporter;
 
     private final String schemaName;
     private final String tableName;
@@ -48,10 +45,12 @@ public class ConfigurationUpdateRequest implements Serializable {
     private final boolean createSnapshots;
     private final Collection<Column> columns;
 
+    @JsonIgnore
     public String getSummary() {
         return issueSummary;
     }
 
+    @JsonIgnore
     public String getReporterName() {
         return issueReporter;
     }
@@ -158,14 +157,8 @@ public class ConfigurationUpdateRequest implements Serializable {
     }
 
     @SuppressWarnings("unused")
-    public String serializeConfigToJSON() {
-        LOGGER.info(issueSummary);
-        LOGGER.info(getReporterName());
+    public String serializeConfigToJSON() throws JsonProcessingException {
         LOGGER.info("Converting request to JSON");
-        try {
-            return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this);
-        } catch (JsonProcessingException e) {
-            throw new BpmnError("Couldn't convert to JSON", e);
-        }
+        return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this);
     }
 }

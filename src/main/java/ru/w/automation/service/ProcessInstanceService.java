@@ -20,10 +20,10 @@ public class ProcessInstanceService {
 
     public void startProcessInstance(String issueKey) {
         if (instancesRunning.add(issueKey)) {
-        runtimeService.createProcessInstanceByKey("ConfigurationUpdateMainProcess")
-                .setVariable(VAR_NAME_ISSUE_KEY, issueKey)
-                .execute();
-         }
+            runtimeService.createProcessInstanceByKey("ConfigurationUpdateMainProcess")
+                    .setVariable(VAR_NAME_ISSUE_KEY, issueKey)
+                    .execute();
+        }
     }
 
     public void updateProcessInstance(String issueKey) {
@@ -34,7 +34,7 @@ public class ProcessInstanceService {
         }
     }
 
-    public void continueProcessInstance(String issueKey) {
+    public void cancelProcessInstance(String issueKey) {
         if (instancesWaiting.remove(issueKey) && instancesRunning.remove(issueKey)) {
             runtimeService.createMessageCorrelation(MSG_NAME_ISSUE_UPDATED_ + issueKey)
                     .setVariable(VAR_NAME_ISSUE_CLOSED, true)
