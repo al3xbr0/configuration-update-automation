@@ -28,11 +28,11 @@ public class ConfigurationUpdateRequest implements Serializable {
 
     private static final Pattern COLUMNS_FIELD_CORRECT_PATTERN =
             Pattern.compile(
-                    "^\\s*(?:\\w+\\s*:\\s*(?:\\w\\s*)*\\w+(?:|\\(\\d+\\))(?:\\s*,\\s*(?!$)|\\s*$))+$"
+                    "^\\s*(?:\\w+\\s*:(?:\\w|\\s)*\\w+\\s*(?:|\\(\\s*\\d+\\s*\\)\\s*)(?:,\\s*(?!$)|$))+$"
             );
     private static final Pattern COLUMNS_ITEMS_PATTERN =
             Pattern.compile(
-                    "(?<name>\\w+)\\s*:\\s*(?<type>(?:\\w\\s*)*\\w+)(?:\\((?<length>\\d+)\\))?"
+                    "(?<name>\\w+)\\s*:\\s*(?<type>(?:\\w\\s*)*\\w+)\\s*(?:\\(\\s*(?<length>\\d+)\\s*\\))?"
             );
 
 
@@ -41,9 +41,9 @@ public class ConfigurationUpdateRequest implements Serializable {
 
     private final String schemaName;
     private final String tableName;
+    private final Collection<Column> columns;
     private final int frequency;
     private final boolean createSnapshots;
-    private final Collection<Column> columns;
 
     @JsonIgnore
     public String getSummary() {
@@ -123,7 +123,8 @@ public class ConfigurationUpdateRequest implements Serializable {
                             ((JSONObject) fields.get(CREATE_SNAPSHOTS)).getString("value")
                     );
         } catch (JSONException e) {
-            LOGGER.warn("Something wrong with \"Extraction type\" field. Check your Jira Custom Fields settings. Default value (false) has been assigned", e);
+            LOGGER.warn("Something wrong with \"Extraction type\" field. Check your Jira Custom Fields settings." +
+                    " Default value (false) has been assigned", e);
         }
 
         Collection<Column> columns = new ArrayList<>();
@@ -135,13 +136,16 @@ public class ConfigurationUpdateRequest implements Serializable {
                 }
                 Matcher columnsItemsMatcher = COLUMNS_ITEMS_PATTERN.matcher(columnsFieldStr);
                 while (columnsItemsMatcher.find()) {
-                    columns.add(
-                            new Column(
-                                    columnsItemsMatcher.group("name").toLowerCase(),
-                                    columnsItemsMatcher.group("type").toLowerCase(),
-                                    Integer.valueOf(columnsItemsMatcher.group("length"))
-                            )
-                    );
+                    String name = columnsItemsMatcher.group("name");
+                    String type = columnsItemsMatcher.group("type").replaceAll("\\s{2,}", " ");
+                    String length = columnsItemsMatcher.group("length");
+                    Column currentColumn;
+                    if (length != null) {
+                        currentColumn = new Column(name, type, Integer.valueOf(length));
+                    } else {
+                        currentColumn = new Column(name, type);
+                    }
+                    columns.add(currentColumn);
                 }
                 LOGGER.info("\"Set of columns\" field parsed successfully");
             } else {
@@ -152,7 +156,8 @@ public class ConfigurationUpdateRequest implements Serializable {
         }
 
         return new ConfigurationUpdateRequest(issue.getSummary(),
-                Objects.requireNonNull(issue.getReporter()).getDisplayName(),
+                Objects.requireNonNull(issue.getReporter())
+                        .getDisplayName(),
                 schemaName, tableName, columns, frequency, createSnapshots);
     }
 
