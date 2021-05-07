@@ -24,17 +24,31 @@ public class GitLabIntegrationService {
 
     public void commitFile(String branchName, String commitMessage, String fileName, String fileContent) throws GitLabApiException {
         LOGGER.info("Committing file '{}' to branch '{}'", fileName, branchName);
+        boolean fileExists;
+        try {
+            gitLabApi.getRepositoryFileApi().getFile(gitLabProperties.getRepoPath(), fileName, gitLabProperties.getStartBranch());
+            fileExists = true;
+            LOGGER.info("File '{}' already exists and will be updated", fileName);
+        } catch (GitLabApiException e) {
+            if (e.getHttpStatus() == 404) {
+                LOGGER.info("File '{}' doesn't exist and will be created", fileName);
+                fileExists = false;
+            } else {
+                throw e;
+            }
+        }
+        CommitAction commitAction = new CommitAction()
+                .withFilePath(fileName)
+                .withContent(fileContent)
+                .withAction(fileExists ? CommitAction.Action.UPDATE : CommitAction.Action.CREATE);
+
         gitLabApi.getCommitsApi().createCommit(
                 gitLabProperties.getRepoPath(),
                 new CommitPayload()
                         .withBranch(branchName)
                         .withStartBranch(gitLabProperties.getStartBranch())
                         .withCommitMessage(commitMessage)
-                        .withAction(
-                                new CommitAction()
-                                        .withAction(CommitAction.Action.CREATE)
-                                        .withFilePath(fileName).withContent(fileContent)
-                        )
+                        .withAction(commitAction)
         );
     }
 
