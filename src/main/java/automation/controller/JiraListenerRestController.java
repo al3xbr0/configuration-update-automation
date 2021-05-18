@@ -17,25 +17,25 @@ public class JiraListenerRestController {
     @Autowired
     private ProcessInstanceService processInstanceService;
 
-    @PostMapping("api/jira/created/{issueKey:[a-zA-Z]+-\\d+}")
+    @PostMapping("api/jira/created/{issueKey:[a-zA-Z0-9]+-\\d+}")
     public void created(@PathVariable("issueKey") String issueKey) {
         LOGGER.info("Requested POST /api/jira/created/{}", issueKey);
         processInstanceService.startProcessInstance(issueKey);
     }
 
-    @PostMapping("api/jira/updated/{issueKey:[a-zA-Z]+-\\d+}")
+    @PostMapping("api/jira/updated/{issueKey:[a-zA-Z0-9]+-\\d+}")
     public void updated(@PathVariable("issueKey") String issueKey) {
         LOGGER.info("Requested POST /api/jira/updated/{}", issueKey);
         processInstanceService.updateProcessInstance(issueKey);
     }
 
-    @PostMapping("api/jira/canceled/{issueKey:[a-zA-Z]+-\\d+}")
+    @PostMapping("api/jira/canceled/{issueKey:[a-zA-Z0-9]+-\\d+}")
     public void canceled(@PathVariable("issueKey") String issueKey) {
         LOGGER.info("Requested POST /api/jira/canceled/{}", issueKey);
         processInstanceService.cancelProcessInstance(issueKey);
     }
 
-    @PostMapping("api/jira/finished/{issueKey:[a-zA-Z]+-\\d+}")
+    @PostMapping("api/jira/finished/{issueKey:[a-zA-Z0-9]+-\\d+}")
     public void finished(@PathVariable("issueKey") String issueKey) {
         LOGGER.info("Requested POST /api/jira/finished/{}", issueKey);
         processInstanceService.finishProcessInstance(issueKey);
