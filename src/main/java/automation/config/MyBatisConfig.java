@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import javax.sql.DataSource;
 
 @Configuration
-@MapperScan("ru.w.automation.dao")
+@MapperScan("automation.dao")
 public class MyBatisConfig {
 
     @Autowired

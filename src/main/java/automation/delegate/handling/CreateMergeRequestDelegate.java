@@ -1,14 +1,14 @@
 package automation.delegate.handling;
 
+import automation.domain.ProcessVariables;
+import automation.service.GitLabIntegrationService;
+import automation.service.JiraIntegrationService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.gitlab4j.api.GitLabApiException;
 import org.gitlab4j.api.models.MergeRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import automation.domain.ProcessVariables;
-import automation.service.GitLabIntegrationService;
-import automation.service.JiraIntegrationService;
 
 @Component("createMergeRequestDelegate")
 public class CreateMergeRequestDelegate implements JavaDelegate {

@@ -1,8 +1,8 @@
 package automation.dao;
 
+import automation.domain.Column;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-import automation.domain.Column;
 
 import java.util.Set;
 

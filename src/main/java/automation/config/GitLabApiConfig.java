@@ -1,11 +1,10 @@
 package automation.config;
 
-
+import automation.domain.GitLabProperties;
 import org.gitlab4j.api.GitLabApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import automation.domain.GitLabProperties;
 
 @Configuration
 public class GitLabApiConfig {

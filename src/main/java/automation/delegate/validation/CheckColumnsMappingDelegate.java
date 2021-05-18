@@ -1,14 +1,14 @@
 package automation.delegate.validation;
 
-import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.delegate.JavaDelegate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import automation.dao.DatabaseDao;
 import automation.domain.Column;
 import automation.domain.ConfigurationUpdateRequest;
 import automation.domain.ProcessVariables;
 import automation.domain.ValidationStatus;
+import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.camunda.bpm.engine.delegate.JavaDelegate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.Set;

@@ -1,9 +1,9 @@
 package automation.dao;
 
+import automation.domain.Column;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import automation.domain.Column;
 
 import java.util.HashSet;
 import java.util.Set;

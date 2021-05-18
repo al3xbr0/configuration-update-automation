@@ -1,10 +1,10 @@
 package automation.delegate.validation;
 
+import automation.domain.Column;
+import automation.domain.ProcessVariables;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.stereotype.Component;
-import automation.domain.Column;
-import automation.domain.ProcessVariables;
 
 import java.util.Collection;
 import java.util.HashSet;

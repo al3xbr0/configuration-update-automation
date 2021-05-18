@@ -1,12 +1,12 @@
 package automation.domain;
 
+import automation.service.JiraIntegrationService;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import automation.service.JiraIntegrationService;
 
 import java.util.Collection;
 import java.util.List;

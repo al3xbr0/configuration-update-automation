@@ -1,12 +1,12 @@
 package automation.delegate;
 
+import automation.domain.ProcessVariables;
+import automation.domain.ValidationStatus;
+import automation.service.JiraIntegrationService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import automation.domain.ProcessVariables;
-import automation.domain.ValidationStatus;
-import automation.service.JiraIntegrationService;
 
 @Component("sendCommentDelegate")
 public class SendCommentDelegate implements JavaDelegate {

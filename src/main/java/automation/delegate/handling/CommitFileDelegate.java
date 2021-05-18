@@ -1,13 +1,13 @@
 package automation.delegate.handling;
 
+import automation.domain.ConfigurationUpdateRequest;
+import automation.domain.ProcessVariables;
+import automation.service.GitLabIntegrationService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.gitlab4j.api.GitLabApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import automation.domain.ConfigurationUpdateRequest;
-import automation.domain.ProcessVariables;
-import automation.service.GitLabIntegrationService;
 
 @Component("commitFileDelegate")
 public class CommitFileDelegate implements JavaDelegate {

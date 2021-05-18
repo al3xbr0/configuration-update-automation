@@ -1,9 +1,9 @@
 package automation.service;
 
+import automation.domain.ProcessConstants;
 import org.camunda.bpm.engine.RuntimeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import automation.domain.ProcessConstants;
 
 import java.util.HashSet;
 import java.util.Set;
