@@ -1,4 +1,4 @@
-package automation.delegate.handling;
+package automation.delegate.execution;
 
 import automation.domain.ProcessVariables;
 import automation.service.GitLabIntegrationService;
