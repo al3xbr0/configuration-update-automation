@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1ca4b3u" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.6.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1ca4b3u" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.8.1">
   <bpmn:process id="RequestValidationProcess" name="Валидация запроса" isExecutable="true" camunda:isStartableInTasklist="false">
     <bpmn:startEvent id="StartEvent_ValidationNeeded" name="Требуется выполнить валидацию запроса" camunda:asyncBefore="true">
       <bpmn:outgoing>Flow_07u57w5</bpmn:outgoing>
@@ -122,7 +122,7 @@
       <bpmn:incoming>Flow_DuplicatesFoundYes</bpmn:incoming>
       <bpmn:outgoing>Flow_1q8829f</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="Activity_CheckColumnsMapping" name="Проверить соответствие типов колонок " camunda:delegateExpression="${checkColumnsMappingDelegate}">
+    <bpmn:serviceTask id="Activity_CheckColumnsMapping" name="Проверить соответствие колонок " camunda:delegateExpression="${checkColumnsMappingDelegate}">
       <bpmn:incoming>Flow_1cr3xtn</bpmn:incoming>
       <bpmn:outgoing>Flow_1vloyt3</bpmn:outgoing>
       <bpmn:property id="Property_045ici6" name="__targetRef_placeholder" />
@@ -325,6 +325,12 @@
           <dc:Bounds x="1226" y="224" width="67" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataStoreReference_01qz14t_di" bpmnElement="DataStoreReference_Postgresql">
+        <dc:Bounds x="585" y="65" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="579" y="122" width="61" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_19bjfr3_di" bpmnElement="Gateway_TableExists" isMarkerVisible="true">
         <dc:Bounds x="565" y="252" width="50" height="50" />
         <bpmndi:BPMNLabel>
@@ -393,12 +399,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_05rbwfk_di" bpmnElement="TextAnnotation_Comment">
         <dc:Bounds x="966" y="502" width="270" height="40" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="DataStoreReference_01qz14t_di" bpmnElement="DataStoreReference_Postgresql">
-        <dc:Bounds x="585" y="65" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="579" y="122" width="61" height="14" />
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="DataInputAssociation_0ivf5hl_di" bpmnElement="DataInputAssociation_0ivf5hl">
         <di:waypoint x="585" y="76" />
