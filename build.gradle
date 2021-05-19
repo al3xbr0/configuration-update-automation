@@ -4,8 +4,7 @@ plugins {
     id 'java'
 }
 
-group = 'ru.w'
-version = '0.1.1'
+version = '0.1.2'
 description = 'Automation of the business process of configuration update requests handling'
 sourceCompatibility = '11'
 
@@ -15,21 +14,20 @@ repositories {
 }
 
 dependencies {
-    implementation platform('org.springframework.boot:spring-boot-dependencies:2.3.1.RELEASE')
-    implementation platform('org.camunda.bpm:camunda-bom:7.15.0')
+    implementation 'com.github.crob1140:confluence-java-client:1.0.0'
 
     implementation 'com.atlassian.jira:jira-rest-java-client-core:5.2.2'
     implementation 'io.atlassian.fugue:fugue:4.7.2'
 
-    implementation 'org.gitlab4j:gitlab4j-api:4.16.0'
+    implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-rest:7.15.0'
+    implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-webapp:7.15.0'
 
-    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.gitlab4j:gitlab4j-api:4.16.0'
 
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.4'
 
-    implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-rest:7.15.0'
-    implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-webapp:7.15.0'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
     runtimeOnly 'org.postgresql:postgresql'
 
