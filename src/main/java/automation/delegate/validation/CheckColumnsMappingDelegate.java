@@ -29,9 +29,10 @@ public class CheckColumnsMappingDelegate implements JavaDelegate {
         Set<Column> columnDescriptionList = dao.tableDescription(request.getSchemaName(), request.getTableName());
         for (Column column : columns) {
             if (
-                    !columnDescriptionList.contains(column)
-                            && column.isVarchar()
-                            && !columnDescriptionList.contains(column.toCharacterVarying())
+                    !(columnDescriptionList.contains(column)
+                            ||
+                            column.isVarchar() && columnDescriptionList.contains(column.toCharacterVarying())
+                    )
             ) {
                 validationStatus.addInvalidColumn(column);
             }
